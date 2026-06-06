@@ -653,6 +653,43 @@ body.dark {
   forced-color-adjust: none;
 }
 
+/* Force light mode - hata kwenye Samsung dark mode */
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: light only !important;
+  }
+  body:not(.dark) {
+    --surface: #F5F7F6 !important;
+    --card: #FFFFFF !important;
+    --border: #E2E8E5 !important;
+    --ink: #0F1923 !important;
+    --ink-mid: #2D3B47 !important;
+    --ink-soft: #5A6A75 !important;
+    --ink-faint: #8FA0A8 !important;
+    --green-pale: #E8F5F0 !important;
+    --green-border: #A8D5C2 !important;
+    --blue-pale: #EEF4FB !important;
+    --blue-border: #AECDE8 !important;
+    --gold-pale: #FDF6E3 !important;
+    --gold-border: #EAD08A !important;
+    --red-pale: #FEF0F0 !important;
+    --red-border: #F5C6C6 !important;
+    --orange-pale: #FFF3E8 !important;
+    background: #F5F7F6 !important;
+    color: #0F1923 !important;
+  }
+  .card, .sidebar, .topbar, .stat-card, .worker-stat-card, 
+  .cust-row, .expense-row, .approval-card, .login-box, .modal-box,
+  .cat-card, .pos-item-card, .cart-panel, .finance-card {
+    background: #FFFFFF !important;
+    color: #0F1923 !important;
+  }
+  .sidebar {
+    background: linear-gradient(180deg, #0B5E47 0%, #0F6E56 40%, #0a4a38 100%) !important;
+    color: #fff !important;
+  }
+}
+
 </style>
 
 <meta name="color-scheme" content="only light"/>
