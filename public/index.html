@@ -634,15 +634,28 @@ html {
   transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Zuia browser forced dark mode */
+/* Zuia kabisa forced dark mode */
+html {
+  color-scheme: light only;
+  forced-color-adjust: none;
+}
 body {
+  color-scheme: light only;
   forced-color-adjust: none;
   -webkit-text-size-adjust: 100%;
+}
+body.dark {
+  color-scheme: dark only;
+}
+/* Reseta rangi kwa element zote */
+.card, .sidebar, .topbar, input, select, button, .stat-card, .worker-stat-card,
+.cust-row, .expense-row, .approval-card, .login-box, .modal-box {
+  forced-color-adjust: none;
 }
 
 </style>
 
-<meta name="color-scheme" content="light dark"/>
+<meta name="color-scheme" content="light only"/>
 
 </head>
 <body>
