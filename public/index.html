@@ -655,7 +655,9 @@ body.dark {
 
 </style>
 
-<meta name="color-scheme" content="light only"/>
+<meta name="color-scheme" content="only light"/>
+<meta name="theme-color" content="#FFFFFF"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 
 </head>
 <body>
@@ -2979,6 +2981,22 @@ function toggleTheme() {
   }
 })();
 
+</script>
+
+<script>
+// Force light mode kwenye Samsung Internet
+(function() {
+  var html = document.documentElement;
+  html.style.setProperty('color-scheme', 'only light', 'important');
+  
+  // Detect forced dark mode na pinga
+  var bg = getComputedStyle(document.body).backgroundColor;
+  if (bg === 'rgb(0, 0, 0)' || bg === 'rgb(18, 18, 18)') {
+    document.body.classList.remove('dark');
+    document.body.style.setProperty('background', '#F5F7F6', 'important');
+    document.body.style.setProperty('color', '#0F1923', 'important');
+  }
+})();
 </script>
 </body>
 </html>
