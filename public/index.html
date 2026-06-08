@@ -972,28 +972,6 @@ body {
         </div>
       </div>
 
-      <!-- DASHBOARD (admin) -->
-      <div id="tab-dashboard" class="section">
-        <div class="stats-grid" id="stat-cards"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:.75rem;">
-          <span style="font-size:14px;font-weight:700;">Utendaji wa Wafanyakazi</span>
-          <div class="filter-bar" style="margin:0;" id="perf-filters">
-            <button class="filter-btn active" onclick="setPerfFilter('today',this)">Leo</button>
-            <button class="filter-btn" onclick="setPerfFilter('yesterday',this)">Jana</button>
-            <button class="filter-btn" onclick="setPerfFilter('week',this)">Wiki hii</button>
-            <button class="filter-btn" onclick="setPerfFilter('month',this)">Mwezi huu</button>
-          </div>
-        </div>
-        <div class="worker-stats-grid" id="worker-stats"></div>
-        <div class="card">
-          <div class="card-hd">
-            <div class="card-icon"><i class="ti ti-activity"></i></div>
-            <div><div class="card-title">Shughuli za Hivi Karibuni</div></div>
-          </div>
-          <div id="recent-list"></div>
-        </div>
-      </div>
-
       <!-- REPORT (admin) -->
       <div id="tab-report" class="section">
         <div class="card" style="margin-bottom:.875rem;padding:1rem 1.25rem;">
@@ -2846,7 +2824,9 @@ let perfFilter = 'today';
 function setPerfFilter(f, btn) {
   perfFilter = f;
   document.querySelectorAll('#perf-filters .filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
+  const customEl = document.getElementById('perf-custom-date');
+  if(customEl) customEl.style.display = f === 'custom' ? 'flex' : 'none';
   renderWorkerPerf();
 }
 
@@ -3092,29 +3072,51 @@ async function renderWorkerPerf() {
     const visits = await api('/api/visits');
     const now = new Date();
     let filtered = visits;
-    if(perfFilter==='today') filtered=visits.filter(v=>new Date(v.time).toDateString()===now.toDateString());
-    else if(perfFilter==='yesterday'){const y=new Date(now);y.setDate(y.getDate()-1);filtered=visits.filter(v=>new Date(v.time).toDateString()===y.toDateString());}
-    else if(perfFilter==='week'){const s=new Date(now);s.setDate(now.getDate()-now.getDay());s.setHours(0,0,0,0);filtered=visits.filter(v=>new Date(v.time)>=s);}
-    else if(perfFilter==='month'){filtered=visits.filter(v=>{const d=new Date(v.time);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});}
 
-    const WORKERS=['NGOSHA','EMMANUEL','MICHAEL','HASSAN'];
-    const wstats={};
-    WORKERS.forEach(w=>{wstats[w]={visits:0,approvedRevenue:0,approved:0,pending:0};});
-    filtered.forEach(v=>{
-      const w=(v.assignedWorker||'').toUpperCase();
-      if(wstats[w]){
+    if(perfFilter === 'today') {
+      filtered = visits.filter(v => new Date(v.time).toDateString() === now.toDateString());
+    } else if(perfFilter === 'yesterday') {
+      const y = new Date(now); y.setDate(y.getDate() - 1);
+      filtered = visits.filter(v => new Date(v.time).toDateString() === y.toDateString());
+    } else if(perfFilter === 'week') {
+      const s = new Date(now); s.setDate(now.getDate() - now.getDay()); s.setHours(0,0,0,0);
+      filtered = visits.filter(v => new Date(v.time) >= s);
+    } else if(perfFilter === 'month') {
+      filtered = visits.filter(v => {
+        const d = new Date(v.time);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      });
+    } else if(perfFilter === 'custom') {
+      const from = document.getElementById('perf-from')?.value;
+      const to = document.getElementById('perf-to')?.value;
+      if(from && to) {
+        filtered = visits.filter(v => {
+          const d = new Date(v.time);
+          return d >= new Date(from) && d <= new Date(to + 'T23:59:59');
+        });
+      }
+    }
+
+    const WORKERS = ['NGOSHA','EMMANUEL','MICHAEL','HASSAN'];
+    const wstats = {};
+    WORKERS.forEach(w => { wstats[w] = { visits: 0, approvedRevenue: 0, approved: 0, pending: 0 }; });
+    
+    filtered.forEach(v => {
+      const w = (v.assignedWorker || '').toUpperCase();
+      if(wstats[w]) {
         wstats[w].visits++;
-        if(v.approved){
+        if(v.approved) {
           wstats[w].approved++;
-          wstats[w].approvedRevenue+=parseFloat(v.amount)||0; // ← only approved
+          wstats[w].approvedRevenue += parseFloat(v.amount) || 0;
         } else {
           wstats[w].pending++;
         }
       }
     });
-    ws.innerHTML=WORKERS.map(name=>{
-      const s=wstats[name];
-      const pct=s.visits>0?Math.round((s.approved/s.visits)*100):0;
+
+    ws.innerHTML = WORKERS.map(name => {
+      const s = wstats[name];
+      const pct = s.visits > 0 ? Math.round((s.approved / s.visits) * 100) : 0;
       return `<div class="worker-stat-card">
         <div class="ws-name"><i class="ti ti-user-cog"></i>${name}
           <button class="btn btn-primary btn-sm" style="margin-left:auto;padding:3px 9px;font-size:11px;" onclick="openWorkerDetail('${name}')">
@@ -3131,9 +3133,10 @@ async function renderWorkerPerf() {
         </div>
       </div>`;
     }).join('');
-  } catch(err){ws.innerHTML=`<div class="empty"><i class="ti ti-alert-circle"></i>${err.message}</div>`;}
+  } catch(err) {
+    ws.innerHTML = `<div class="empty"><i class="ti ti-alert-circle"></i>${err.message}</div>`;
+  }
 }
-
 // ════════════════════════════════════════════════════════════════
 // WORKER DETAIL (Admin view)
 // ════════════════════════════════════════════════════════════════
