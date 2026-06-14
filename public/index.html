@@ -2,11 +2,7 @@
 <html lang="sw">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<meta name="referrer" content="no-referrer"/>
-<meta name="color-scheme" content="light"/>
-<meta name="supported-color-schemes" content="light"/>
-<meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,viewport-fit=cover"/>
 <title>Ngewa Car Wash — System</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'><circle cx='40' cy='40' r='40' fill='%230F6E56'/><rect x='15' y='42' width='50' height='16' rx='4' fill='white'/><path d='M19 42 L25 32 Q27 30 31 30 L49 30 Q53 30 55 32 L61 42Z' fill='white'/><circle cx='27' cy='58' r='6' fill='%230B5E47'/><circle cx='53' cy='58' r='6' fill='%230B5E47'/></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -26,19 +22,27 @@
   --shadow-lg:0 12px 40px rgba(0,0,0,.13);
   --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;
 }
-/* Force light mode — blocks Samsung Internet dark mode, Chrome dark mode, etc */
-html, body {
-  color-scheme: light !important;
-  forced-color-adjust: none !important;
-  -webkit-text-size-adjust: 100%;
-  background-color: #F5F7F6 !important;
-}
-/* Override ANY browser or OS dark mode */
-@media (prefers-color-scheme: dark) {
-  html, body {
-    color-scheme: light !important;
-    filter: none !important;
-  }
+/* DARK THEME */
+body.dark {
+  --surface:#2c2a2a;
+  --card:#312f2f;
+  --border:#433a3a;
+  --ink:#e0e0e0;
+  --ink-mid:#c0c0c0;
+  --ink-soft:#a0a0a0;
+  --ink-faint:#fefefe;
+  --green-pale:#000000;
+  --green-border:#f6f5f5;
+  --blue-pale:#0a1a2a;
+  --blue-border:#1A6BAB;
+  --gold-pale:#f7f5f3;
+  --gold-border:#7A5200;
+  --red-pale:#2a0a0a;
+  --red-border:#8B0000;
+  --orange-pale:#2a1a0a;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.3);
+  --shadow-md:0 4px 16px rgba(245, 239, 239, 0.4);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.5);
 }
 
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -81,17 +85,17 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 /* APP LAYOUT */
 #app-page{display:none;}
-.sidebar{position:fixed;top:0;left:0;width:230px;height:100vh;background:var(--green);display:flex;flex-direction:column;z-index:400;box-shadow:var(--shadow-lg);overflow:hidden;}
+.sidebar{position:fixed;top:0;left:0;width:230px;height:100vh;background:var(--green);display:flex;flex-direction:column;z-index:400;box-shadow:var(--shadow-lg);}
 .sidebar-logo{padding:1.5rem 1.25rem 1rem;border-bottom:1px solid rgba(255,255,255,.1);}
 .sidebar-brand{font-size:14px;font-weight:800;color:#fff;letter-spacing:.5px;margin-top:8px;}
 .sidebar-tagline{font-size:9px;color:rgba(255,255,255,.5);letter-spacing:1.2px;text-transform:uppercase;}
-.sidebar-nav{flex:1;padding:.75rem 0;overflow-y:auto;min-height:0;}
+.sidebar-nav{flex:1;padding:.75rem 0;overflow-y:auto;}
 .nav-section{font-size:9px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:1.8px;text-transform:uppercase;padding:8px 1.25rem 3px;}
 .nav-item{display:flex;align-items:center;gap:10px;padding:9px 1.25rem;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);cursor:pointer;transition:all .18s;border-left:3px solid transparent;}
 .nav-item:hover{background:rgba(255,255,255,.08);color:#fff;}
 .nav-item i{font-size:16px;opacity:.8;}
 .nav-item.active i{opacity:1;}
-.sidebar-footer{padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.1);flex-shrink:0;position:relative;z-index:1;}
+.sidebar-footer{padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.1);}
 .user-info{display:flex;align-items:center;gap:9px;}
 .user-av{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
 .user-name{font-size:13px;font-weight:600;color:#fff;}
@@ -640,6 +644,9 @@ body {
   forced-color-adjust: none;
   -webkit-text-size-adjust: 100%;
 }
+body.dark {
+  color-scheme: dark only;
+}
 /* Reseta rangi kwa element zote */
 .card, .sidebar, .topbar, input, select, button, .stat-card, .worker-stat-card,
 .cust-row, .expense-row, .approval-card, .login-box, .modal-box {
@@ -647,7 +654,221 @@ body {
 }
 
 /* Force light mode - hata kwenye Samsung dark mode */
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: light only !important;
+  }
+  body:not(.dark) {
+    --surface: #F5F7F6 !important;
+    --card: #FFFFFF !important;
+    --border: #E2E8E5 !important;
+    --ink: #0F1923 !important;
+    --ink-mid: #2D3B47 !important;
+    --ink-soft: #5A6A75 !important;
+    --ink-faint: #8FA0A8 !important;
+    --green-pale: #E8F5F0 !important;
+    --green-border: #A8D5C2 !important;
+    --blue-pale: #EEF4FB !important;
+    --blue-border: #AECDE8 !important;
+    --gold-pale: #FDF6E3 !important;
+    --gold-border: #EAD08A !important;
+    --red-pale: #FEF0F0 !important;
+    --red-border: #F5C6C6 !important;
+    --orange-pale: #FFF3E8 !important;
+    background: #F5F7F6 !important;
+    color: #0F1923 !important;
+  }
+  .card, .sidebar, .topbar, .stat-card, .worker-stat-card, 
+  .cust-row, .expense-row, .approval-card, .login-box, .modal-box,
+  .cat-card, .pos-item-card, .cart-panel, .finance-card {
+    background: #FFFFFF !important;
+    color: #0F1923 !important;
+  }
+  .sidebar {
+    background: linear-gradient(180deg, #0B5E47 0%, #0F6E56 40%, #0a4a38 100%) !important;
+    color: #fff !important;
+  }
+}
 
+
+/* ── BOTTOM TAB BAR (mobile/tablet) + premium polish ── */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-top:1px solid var(--border);z-index:500;padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -4px 24px rgba(0,0,0,.06);}
+.bn-scroll{display:flex;overflow-x:auto;gap:2px;scrollbar-width:none;}
+.bn-scroll::-webkit-scrollbar{display:none;}
+.bn-item{flex:0 0 auto;min-width:64px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 10px;border-radius:14px;color:var(--ink-faint);cursor:pointer;transition:all .2s;position:relative;}
+.bn-item i{font-size:21px;transition:transform .25s cubic-bezier(.34,1.56,.64,1);}
+.bn-item span{font-size:10px;font-weight:600;white-space:nowrap;}
+.bn-item.active{color:var(--green);}
+.bn-item.active i{transform:translateY(-2px) scale(1.12);}
+.bn-item.active::before{content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:24px;height:3px;background:linear-gradient(90deg,var(--green-mid),var(--green-light));border-radius:3px;}
+.bn-item .badge-count{position:absolute;top:2px;right:8px;}
+
+@media(max-width:900px){
+  .bottom-nav{display:block;}
+  .main-content{padding-bottom:90px;}
+}
+
+/* Glass card upgrade + gradient accents */
+.card{position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green-mid),var(--green-light),var(--gold));opacity:.35;}
+.stat-card,.finance-card,.worker-stat-card{background:linear-gradient(145deg,#ffffff 0%,#fbfdfc 100%);}
+
+/* Smooth tab transition */
+.section{opacity:0;transform:translateY(6px);transition:opacity .22s ease,transform .22s ease;}
+.section.active{opacity:1;transform:translateY(0);}
+
+/* Buttons get subtle gradient + press feedback */
+.btn-primary{background:linear-gradient(135deg,var(--green-mid),var(--green));box-shadow:0 2px 10px rgba(15,110,86,.25);}
+.btn-primary:active{transform:scale(.97);}
+.btn,.tab-btn,.nav-item,.bn-item,.filter-btn,.cust-row,.pos-item-card{transition:transform .12s ease, background .2s ease, border-color .2s ease, color .2s ease;}
+.btn:active,.filter-btn:active,.pos-item-card:active{transform:scale(.96);}
+
+/* Skeleton shimmer for loading */
+@keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+.skeleton{background:linear-gradient(90deg,#eef1f0 25%,#f7f9f8 37%,#eef1f0 63%);background-size:400% 100%;animation:shimmer 1.4s ease infinite;border-radius:8px;}
+.skel-line{height:12px;margin-bottom:8px;}
+.skel-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-md);margin-bottom:6px;}
+.skel-avatar{width:38px;height:38px;border-radius:50%;flex-shrink:0;}
+
+/* Stat card icons get gradient bg */
+.stat-icon.si-green{background:linear-gradient(135deg,#E8F5F0,#cdeee2);}
+.stat-icon.si-blue{background:linear-gradient(135deg,#EEF4FB,#d7e9fb);}
+.stat-icon.si-gold{background:linear-gradient(135deg,#FDF6E3,#fbecc4);}
+.stat-icon.si-purple{background:linear-gradient(135deg,#F0EFFE,#e1ddfb);}
+
+
+/* ── PREMIUM VISUAL POLISH ── */
+
+/* Login screen gradient */
+#login-page{background:linear-gradient(155deg,#062E22 0%,#0B5E47 40%,#1aaa80 100%) !important;}
+.login-box{border-top:3px solid rgba(255,255,255,.15);}
+.login-brand{background:linear-gradient(135deg,var(--green-mid),var(--green-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+/* Bottom nav gradient border */
+.bottom-nav{border-top:1.5px solid transparent;background-clip:padding-box;
+  background-image:linear-gradient(rgba(255,255,255,.92),rgba(255,255,255,.92)),
+  linear-gradient(90deg,var(--green-mid),var(--green-light),var(--gold));
+  background-origin:border-box;
+  background-clip:padding-box;}
+
+/* Mobile topbar gradient */
+.mobile-topbar{background:linear-gradient(135deg,#0B5E47 0%,#0F6E56 60%,#1aaa80 100%) !important;}
+
+/* Sidebar gradient */
+.sidebar{background:linear-gradient(180deg,#0B5E47 0%,#0F6E56 70%,#085041 100%) !important;}
+
+/* Active nav pill background */
+.nav-item.active{background:rgba(255,255,255,.15);border-left-color:#A8D5C2 !important;
+  border-radius:0 8px 8px 0;}
+
+/* Card hover lift effect on desktop */
+@media(min-width:901px){
+  .cust-row:hover,.stat-card:hover,.worker-stat-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(15,110,86,.10);
+  }
+}
+
+/* Stat card left accent bar */
+.stat-card::after{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;
+  background:linear-gradient(180deg,var(--green-mid),var(--green-light));
+  border-radius:3px;opacity:.5;}
+
+/* Progress bars animated */
+.progress-fill{transition:width .6s cubic-bezier(.34,1.1,.64,1);}
+
+/* POS item cards hover */
+.pos-item-card{transition:transform .18s,box-shadow .18s,border-color .18s;}
+.pos-item-card:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 8px 24px rgba(15,110,86,.15);}
+
+/* Metric value number */
+.metric-val,.stat-value{background:linear-gradient(135deg,var(--green),var(--green-light));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+/* Badge */
+.badge-count{background:linear-gradient(135deg,#e53e3e,#c53030) !important;}
+
+/* Floating add button for mobile */
+@media(max-width:900px){
+  .mobile-fab{display:flex !important;}
+}
+.mobile-fab{display:none;position:fixed;bottom:90px;right:20px;width:52px;height:52px;
+  background:linear-gradient(135deg,var(--green-mid),var(--green-light));
+  border-radius:50%;align-items:center;justify-content:center;
+  box-shadow:0 6px 20px rgba(15,110,86,.4);z-index:400;cursor:pointer;
+  border:none;transition:transform .2s;}
+.mobile-fab:active{transform:scale(.93);}
+.mobile-fab i{font-size:22px;color:#fff;}
+
+/* Cards get gentle entry animation */
+@keyframes cardIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.cust-row,.stat-card,.worker-stat-card,.expense-row,.pos-item-card{animation:cardIn .25s ease both;}
+
+/* Safe area bottom for bottom nav */
+.bottom-nav{padding-bottom:calc(8px + env(safe-area-inset-bottom,8px));}
+
+/* Make app-main never show on mobile before login */
+@media(max-width:900px){
+  .app-main{margin-left:0 !important;}
+  .topbar{display:none !important;}
+}
+
+
+/* ── MOBILE LAYOUT FIXES ── */
+@media(max-width:900px){
+  /* Sidebar slides in as drawer only */
+  .sidebar{width:280px;transform:translateX(-260px);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:500;}
+  .sidebar.mobile-open{transform:translateX(0);}
+  .app-main{margin-left:0;width:100%;min-height:100vh;}
+  .main-content{padding:1rem .875rem 100px;} /* extra bottom padding for nav */
+  /* Login fullscreen */
+  #login-page{padding:.75rem;}
+  .login-outer{padding:.5rem;}
+  .login-box{padding:2rem 1.5rem;}
+  /* Cards tighter on mobile */
+  .card{padding:1rem;}
+  .card-hd{margin-bottom:1rem;padding-bottom:.875rem;}
+  /* Stats grid 2 col on phone */
+  .stats-grid{grid-template-columns:1fr 1fr !important;}
+  .stat-value{font-size:18px !important;}
+  .stat-label{font-size:9px !important;}
+  /* Worker stats 1 col */
+  .worker-stats-grid{grid-template-columns:1fr 1fr !important;}
+  /* Finance grid 1 col */
+  .finance-grid{grid-template-columns:1fr !important;}
+  /* POS sell grid — stack vertically */
+  .pos-sell-grid{grid-template-columns:1fr !important;}
+  .pos-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr)) !important;}
+  /* Bottom nav always visible above keyboard */
+  .bottom-nav{padding-top:6px;}
+  /* FAB above bottom nav */
+  .mobile-fab{bottom:76px !important;}
+  /* PWA banner above bottom nav */
+  #pwa-banner{bottom:76px !important;}
+  /* Modal full width */
+  .modal-box{max-width:100% !important;margin:.5rem !important;border-radius:16px !important;}
+  /* Wider input touch targets */
+  input.fi, select.fi{font-size:16px !important;} /* prevents iOS zoom */
+  /* Field rows 1 col on small phones */
+  .frow{grid-template-columns:1fr !important;}
+}
+
+@media(max-width:380px){
+  .bn-item span{display:none;}
+  .bn-item{min-width:52px;padding:8px 6px 4px;}
+  .worker-stats-grid{grid-template-columns:1fr !important;}
+}
+
+/* Tablet (901-1100px) — sidebar + bottom nav both visible */
+@media(min-width:901px) and (max-width:1100px){
+  .sidebar{width:60px;overflow:hidden;transition:width .22s;}
+  .sidebar:hover{width:230px;}
+  .sidebar:hover .sidebar-brand,.sidebar:hover .sidebar-tagline,.sidebar:hover .nav-label,.sidebar:hover .nav-section,.sidebar:hover .user-name,.sidebar:hover .user-role{opacity:1;}
+  .sidebar-brand,.sidebar-tagline,.nav-label,.nav-section,.user-name,.user-role{opacity:0;transition:opacity .15s;white-space:nowrap;}
+  .nav-item{justify-content:center;}
+  .sidebar:hover .nav-item{justify-content:flex-start;}
+  .app-main{margin-left:60px;}
+}
 
 </style>
 
@@ -727,7 +948,8 @@ body {
           <div class="user-name" id="user-name">—</div>
           <div class="user-role" id="user-role">—</div>
         </div>
-
+        <div class="logout-btn" onclick="toggleTheme()" title="Badilisha Theme" style="margin-right:8px;">
+        <i class="ti ti-moon" id="theme-icon" style="font-size:17px;"></i></div>
         <div class="logout-btn" onclick="doLogout()" title="Toka"><i class="ti ti-logout" style="font-size:17px;"></i></div>
       </div>
     </div>
@@ -736,15 +958,49 @@ body {
   <!-- Mobile overlay -->
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
 
+  <!-- Bottom tab bar (mobile/tablet) -->
+
+
+  <!-- PWA install banner -->
+  <div id="pwa-banner" style="display:none;position:fixed;bottom:90px;left:12px;right:12px;
+    background:linear-gradient(135deg,#0B5E47,#1aaa80);color:#fff;border-radius:16px;
+    padding:14px 16px;z-index:600;box-shadow:0 8px 24px rgba(0,0,0,.25);
+    display:none;align-items:center;gap:12px;animation:cardIn .3s ease;">
+    <div style="width:40px;height:40px;background:rgba(255,255,255,.15);border-radius:12px;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <i class="ti ti-download" style="font-size:20px;"></i>
+    </div>
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:700;">Weka kwenye Simu yako</div>
+      <div style="font-size:11px;opacity:.8;margin-top:2px;">Fungua haraka kama app halisi</div>
+    </div>
+    <button onclick="installPWA()" style="background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.4);
+      color:#fff;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">
+      Weka
+    </button>
+    <button onclick="hidePWABanner()" style="background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:18px;padding:4px;">✕</button>
+  </div>
+
+  <!-- Mobile FAB — quick check-in -->
+  <button class="mobile-fab" id="mobile-fab" onclick="fabAction()" title="Usajili Mpya" aria-label="Quick Check-in">
+    <i class="ti ti-user-plus"></i>
+  </button>
+
+  <nav class="bottom-nav" id="bottom-nav"><div class="bn-scroll" id="bn-scroll"></div></nav>
+
   <div class="app-main">
     <!-- Mobile topbar -->
-    <div class="mobile-topbar">
-      <button class="hamburger" onclick="openMobileSidebar()">&#9776;</button>
-      <span class="ncw-title">NGEWA CAR WASH</span>
-<div style="margin-left:auto;"></div>
-      <div class="lang-toggle">
-        <button class="lang-btn active" id="lang-sw" data-lang-btn="sw" onclick="setLang('sw');return false;" style="pointer-events:auto!important;z-index:99999!important;">SW</button>
-        <button class="lang-btn" id="lang-en" data-lang-btn="en" onclick="setLang('en');return false;" style="pointer-events:auto!important;z-index:99999!important;">EN</button>
+        <div class="mobile-topbar" id="mobile-topbar">
+      <button class="hamburger" onclick="openMobileSidebar()" aria-label="Menu">&#9776;</button>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <span class="ncw-title" id="mob-page-title">NGEWA CAR WASH</span>
+        <span style="font-size:9px;color:rgba(255,255,255,.55);letter-spacing:1.2px;text-transform:uppercase;" id="mob-page-sub">Huduma Nzuri na Bora</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div class="lang-toggle">
+          <button class="lang-btn active" id="mob-lang-sw" data-lang-btn="sw" onclick="setLang('sw')">SW</button>
+          <button class="lang-btn" id="mob-lang-en" data-lang-btn="en" onclick="setLang('en')">EN</button>
+        </div>
       </div>
     </div>
 
@@ -875,7 +1131,7 @@ body {
             </select>
           </div>
 
-          <button class="btn btn-primary" id="checkin-btn" onclick="registerCustomer()">
+          <button class="btn btn-primary" id="checkin-btn" onclick="haptic(12);registerCustomer()">
             <i class="ti ti-check"></i> Sajili na Tuma Ujumbe wa Karibu
           </button>
 
@@ -1129,7 +1385,7 @@ body {
                   <label class="form-label">Maelezo <span class="opt-badge">hiari</span></label>
                   <input class="fi" type="text" id="cart-note" placeholder="mfano: Mteja — Juma" style="margin-bottom:10px;"/>
                 </div>
-                <button class="btn btn-primary btn-full" id="checkout-btn" onclick="checkout()" style="display:none;">
+                <button class="btn btn-primary btn-full" id="checkout-btn" onclick="haptic(15);checkout()" style="display:none;">
                   <i class="ti ti-cash-register"></i> Kamilisha Mauzo
                 </button>
                 <button class="btn btn-outline btn-full btn-sm" id="clear-cart-btn" onclick="clearCart()" style="display:none;margin-top:6px;">
@@ -1440,12 +1696,21 @@ function startApp(){
     {id:'mytasks',icon:'ti-checklist',label:'Kazi Zangu',badge:true},
     {id:'mytoday',icon:'ti-list',label:'Yangu Leo'},
   ];
-  const tabs=currentRole==='admin'?adminTabs:workerTabs;
+  // Reorder so the HOME (Dashboard for admin, Yangu Leo for worker) is first
+  const homeTabId = currentRole==='admin' ? 'dashboard' : 'mytoday';
+  const tabs = (currentRole==='admin'?adminTabs:workerTabs).slice();
+  const homeIdx = tabs.findIndex(t=>t.id===homeTabId);
+  if(homeIdx>0){ const [h]=tabs.splice(homeIdx,1); tabs.unshift(h); }
+
   const nav=document.getElementById('sidebar-nav');
+  const bn=document.getElementById('bn-scroll');
   nav.innerHTML='<div class="nav-section">Menyu</div>';
+  bn.innerHTML='';
   tabs.forEach((t,i)=>{
+    const isActive=i===0;
+    // Sidebar item
     const d=document.createElement('div');
-    d.className='nav-item'+(i===0?' active':'');
+    d.className='nav-item'+(isActive?' active':'');
     d.id='nav-'+t.id;
     d.innerHTML=`<i class="ti ${t.icon}"></i><span class="nav-label">${t.label}</span>${t.badge?'<span class="badge-count" id="tasks-badge" style="display:none;">0</span>':''}`;
     d.addEventListener('click', function(){
@@ -1453,16 +1718,23 @@ function startApp(){
       closeMobileSidebar();
     });
     nav.appendChild(d);
+
+    // Bottom nav item (mobile)
+    const b=document.createElement('div');
+    b.className='bn-item'+(isActive?' active':'');
+    b.id='bn-'+t.id;
+    b.innerHTML=`<i class="ti ${t.icon}"></i><span>${t.label}</span>${t.badge?'<span class="badge-count" id="tasks-badge-bn" style="display:none;">0</span>':''}`;
+    b.addEventListener('click', function(){ showTab(t.id, b, t.label); });
+    bn.appendChild(b);
   });
+
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.getElementById('tab-checkin').classList.add('active');
-  document.getElementById('topbar-title').textContent=t('checkin');
-  if(currentRole==='admin')renderDashboard();
+  document.getElementById('tab-'+homeTabId).classList.add('active');
+  document.getElementById('topbar-title').textContent=t(homeTabId)||tabs[0].label;
+  if(currentRole==='admin'){renderDashboard();renderWorkerPerf();}
   else{renderMyTasks();renderMyToday();}
-  // Apply language to all UI after app starts
-  setTimeout(()=>{applyLangToNav();applyLangToForms();},100);
 }
-window.addEventListener('load',()=>{if(token&&currentRole)startApp(); else { const savedLang=localStorage.getItem('ncw_lang'); if(savedLang){currentLang=savedLang;setLang(savedLang);} }updateClock();setInterval(updateClock,1000);});
+window.addEventListener('load',()=>{if(token&&currentRole)startApp();updateClock();setInterval(updateClock,1000);});
 
 // ── No plate toggle ───────────────────────────────────────────────────────
 function toggleNoPlate(){
@@ -1649,14 +1921,15 @@ async function checkInReturning(plate){
 async function renderMyTasks(){
   const el=document.getElementById('mytasks-list');
   if(!el)return;
-  el.innerHTML='<div class="empty"><span class="spinner spinner-dark"></span></div>';
+  el.innerHTML=skeletonRows();
   try{
     const visits=await api('/api/my-visits');
     const pending=visits.filter(v=>!v.approved);
     const done=visits.filter(v=>v.approved&&new Date(v.time).toDateString()===new Date().toDateString());
-    // Update badge
+    // Update badge (sidebar + bottom nav)
     const badge=document.getElementById('tasks-badge');
-    if(badge){badge.textContent=pending.length;badge.style.display=pending.length>0?'inline':'none';}
+    const badgeBn=document.getElementById('tasks-badge-bn');
+    [badge,badgeBn].forEach(b=>{if(b){b.textContent=pending.length;b.style.display=pending.length>0?'inline':'none';}});
     if(!visits.length){el.innerHTML='<div class="empty"><i class="ti ti-checklist"></i>Hakuna kazi zilizokupangiwa bado.</div>';return;}
     let html='';
     if(pending.length){
@@ -1676,7 +1949,7 @@ async function renderMyTasks(){
             ${v.amount?`&nbsp;·&nbsp;<strong>TZS ${parseFloat(v.amount).toLocaleString()}</strong>`:''}
           </div>
           <div class="approval-footer">
-            <button class="btn btn-primary btn-sm" onclick="approveVisit('${v.id}')">
+            <button class="btn btn-primary btn-sm" onclick="haptic(10);approveVisit('${v.id}')">
               <i class="ti ti-thumb-up"></i> Nimehudumia — Thibitisha
             </button>
           </div>
@@ -1728,7 +2001,7 @@ async function approveVisit(visitId){
 // ── Dashboard ──────────────────────────────────────────────────────────────
 async function renderDashboard(){
   const sc=document.getElementById('stat-cards'),rl=document.getElementById('recent-list'),ws=document.getElementById('worker-stats');
-  sc.innerHTML='<div class="empty"><span class="spinner spinner-dark"></span></div>';
+  sc.innerHTML=skeletonRows(4);
   try{
     const[stats,visits]=await Promise.all([api('/api/stats'),api('/api/visits')]);
     sc.innerHTML=`
@@ -1779,7 +2052,7 @@ function getFiltered(){
 }
 async function renderReport(){
   const listEl=document.getElementById('report-list'),metEl=document.getElementById('report-metrics');
-  listEl.innerHTML='<div class="empty"><span class="spinner spinner-dark"></span></div>';
+  listEl.innerHTML=skeletonRows();
   try{
     allVisitsCache=await api('/api/visits');
     const visits=getFiltered();
@@ -1828,7 +2101,7 @@ async function renderReport(){
 // ── Database ──────────────────────────────────────────────────────────────
 async function renderDatabase(){
   const el=document.getElementById('db-list');
-  el.innerHTML='<div class="empty"><span class="spinner spinner-dark"></span></div>';
+  el.innerHTML=skeletonRows();
   try{allCustomersCache=await api('/api/customers');filterDatabase();}
   catch(err){el.innerHTML=`<div class="empty"><i class="ti ti-alert-circle"></i>${err.message}</div>`;}
 }
@@ -1914,7 +2187,7 @@ async function saveEdit(){
 // ── Reminders ─────────────────────────────────────────────────────────────
 async function renderReminders(){
   const el=document.getElementById('reminder-list');
-  el.innerHTML='<div class="empty"><span class="spinner spinner-dark"></span></div>';
+  el.innerHTML=skeletonRows();
   try{
     const customers=await api('/api/customers');
     const due=customers.filter(c=>daysSince(c.lastVisit)>=7);
@@ -1956,11 +2229,19 @@ async function sendReminder(plate,channel,p){
 
 // ── Tabs & Clock ──────────────────────────────────────────────────────────
 function showTab(name,el,label){
+  haptic();
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-item, .bn-item').forEach(b=>b.classList.remove('active'));
+  const navEl=document.getElementById('nav-'+name);
+  const bnEl=document.getElementById('bn-'+name);
+  if(navEl) navEl.classList.add('active');
+  if(bnEl) bnEl.classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
-  el.classList.add('active');
   document.getElementById('topbar-title').textContent=label||name;
+  const mobTitle=document.getElementById('mob-page-title');
+  const mobSub=document.getElementById('mob-page-sub');
+  if(mobTitle) mobTitle.textContent=(label||name).toUpperCase();
+  if(mobSub) mobSub.textContent='Ngewa Car Wash';
   if(name==='report')renderReport();
   if(name==='database')renderDatabase();
   if(name==='reminders')renderReminders();
@@ -2053,7 +2334,7 @@ function setExpFilter(f, btn) {
 
 async function renderExpenseList() {
   const el = document.getElementById('exp-list-content');
-  el.innerHTML = '<div class="empty"><span class="spinner spinner-dark"></span></div>';
+  el.innerHTML = skeletonRows();
   try {
     allExpenses = await api('/api/expenses');
     const now = new Date();
@@ -2235,7 +2516,7 @@ async function checkout() {
 async function renderInventory() {
   const el = document.getElementById('inventory-list');
   if (!el) return;
-  el.innerHTML = '<div class="empty"><span class="spinner spinner-dark"></span></div>';
+  el.innerHTML = skeletonRows();
   try {
     const items = await api('/api/pos/items');
     if (!items.length) { el.innerHTML = '<div class="empty"><i class="ti ti-package-off"></i>Hakuna bidhaa bado.</div>'; return; }
@@ -2341,188 +2622,40 @@ function showSubTab(parentTab, subId, btn) {
 // ════════════════════════════════════════════════════════════════
 const TRANSLATIONS = {
   sw: {
-    // Nav
     checkin:'Usajili', lookup:'Tafuta', dashboard:'Dashibodi', report:'Ripoti',
     database:'Wateja Wote', reminders:'Ukumbusho', expenses:'Matumizi',
     pos:'POS — Bidhaa', finance:'Fedha & Faida', mytasks:'Kazi Zangu', mytoday:'Yangu Leo',
-    // Periods
     today:'Leo', yesterday:'Jana', thisWeek:'Wiki hii', thisMonth:'Mwezi huu',
-    allTime:'Wakati Wote', customDate:'Tarehe Maalum',
-    // Stats
-    customers:'Wateja', revenue:'Mapato', newCust:'Wapya',
+    allTime:'Wakati Wote', customers:'Wateja', revenue:'Mapato', newCust:'Wapya',
     returning:'Wa Kawaida', completed:'Zilizokamilika', topVehicle:'Chombo Kinachongoza',
-    totalCustomers:'Wateja Wote', todayVisits:'Ziara za Leo',
-    todayRevenue:'Mapato Leo', totalRevenue:'Mapato Yote',
-    tasksDone:'Zilizokamilika', tasksPending:'Zinasubiria',
-    // Auth
+    noVisits:'Hakuna ziara kwa kipindi hiki.', loading:'Inapakia…',
     signIn:'Ingia', username:'Jina la mtumiaji', password:'Neno la siri',
-    // Check-in form
     checkIn:'Sajili na Tuma Ujumbe wa Karibu', searchPlate:'Tafuta Mteja',
     assignWorker:'Mgawanye kwa Mfanyakazi', saveChanges:'Hifadhi Mabadiliko',
     cancel:'Ghairi', workerPerf:'Utendaji wa Wafanyakazi',
+    totalCustomers:'Wateja Wote', todayVisits:'Ziara za Leo',
+    todayRevenue:'Mapato Leo', totalRevenue:'Mapato Yote',
+    tasksDone:'Zilizokamilika', tasksPending:'Zinasubiria',
     confirmService:'Nimehudumia — Thibitisha', myJobs:'Kazi Zangu',
-    noVisits:'Hakuna ziara kwa kipindi hiki.', loading:'Inapakia…',
-    fullName:'Jina kamili', phoneNum:'Namba ya Simu', emailAddr:'Barua pepe',
-    vehicleType:'Aina ya Chombo', regNumber:'Namba ya Usajili',
-    service:'Huduma', amount:'Kiasi (TZS)', optional:'hiari',
-    noPlateLabel:'Chombo cha Umeme / Hakina Namba / Zulia la Nyumbani',
-    scanBtn:'Fungua Kamera — Thibitisha Namba Mwenyewe',
-    checkInBtn:'Sajili na Tuma Ujumbe wa Karibu',
-    // Lookup
-    lookupTitle:'Tafuta Mteja', lookupSub:'Scan kamera, au andika namba / simu / jina',
-    lookupPlaceholder:'Namba, Ngewa ID, simu au jina…',
-    lookupHint:'Kwa vyombo vya umeme au zulia, tafuta kwa simu au jina.',
-    registerToday:'Sajili kwa Leo',
-    // My tasks
-    myTasksTitle:'Kazi Zangu — Thibitisha Huduma',
-    myTasksSub:'Bonyeza "Nimehudumia" baada ya kumalizia kazi',
-    // My today
-    myTodayTitle:'Usajili Wangu', myTodaySub:'Wateja wako na mapato kwa kipindi ulichochagua',
-    myCheckins:'Usajili Wangu', completedTasks:'Zilizokamilika', myRevenue:'Mapato',
-    // Dashboard
-    totalCust:'Wateja Wote', todayVisit:'Ziara za Leo', todayRev:'Mapato Leo', totalRev:'Mapato Yote',
-    recentActivity:'Shughuli za Hivi Karibuni',
-    workerPerfTitle:'Utendaji wa Wafanyakazi',
-    assignedJobs:'Kazi zilizopewa', completedJobs:'Zilizokamilika ✅',
-    pendingJobs:'Zinasubiria ⏳', approvedRevenue:'Mapato (zilizokamilika)',
-    viewWorker:'Angalia', performance:'Utendaji',
-    // Database
-    dbTitle:'Database ya Wateja', dbSub:'Bonyeza 📝 kuhariri mteja yeyote',
-    searchCustomer:'Tafuta kwa jina, namba au simu…',
-    visits:'ziara', lastVisit:'Mwisho',
-    // Reminders
-    remTitle:'Ukumbusho wa Siku 7', remSub:'Wateja ambao hawarudi kwa siku 7',
-    daysAgo:'siku zilizopita', reminderSent:'Ukumbusho umetumwa', sendSMS:'SMS',
-    sendEmail:'Barua pepe', sendBoth:'Vyote',
-    // Expenses
-    expTitle:'Matumizi ya Biashara', expSub:'Rekodi matumizi yote',
-    addExpense:'Ongeza Matumizi', expHistory:'Historia',
-    selectCategory:'Chagua Kategoria', description:'Maelezo',
-    date:'Tarehe', saveExpense:'Hifadhi Matumizi', totalExpenses:'Jumla ya Matumizi',
-    noExpenses:'Hakuna matumizi kwa kipindi hiki.',
-    // POS
-    posTitle:'Bidhaa Zinapatikana', posSub:'Bonyeza bidhaa kuiongeza kwenye mauzo',
-    sellItems:'Uza Bidhaa', inventory:'Inventori', salesHistory:'Historia ya Mauzo',
-    addItem:'Ongeza Bidhaa', receipt:'Stakabadhi ya Mauzo',
-    startShopping:'Bonyeza bidhaa kuanza', total:'Jumla', note:'Maelezo',
-    checkout:'Kamilisha Mauzo', clearCart:'Futa Mauzo',
-    itemName:'Jina la Bidhaa', sellingPrice:'Bei ya Uuzaji (TZS)',
-    unit:'Kitengo', stockQty:'Hisa Iliyopo', lowStockAlert:'Tahadhari ya Hisa Chini',
-    saveItem:'Hifadhi Bidhaa',
-    stockLabel:'Hisa', lowStock:'Chini',
-    totalSales:'Jumla ya Mauzo', noSales:'Hakuna mauzo kwa kipindi hiki.',
-    // Finance
-    finTitle:'Muhtasari wa Fedha', finSub:'Mapato, Matumizi, na Faida Halisi',
-    income:'Mapato', expenses2:'Matumizi', netProfit:'Faida Halisi',
-    margin:'Margin %', incomeVsExp:'Mapato vs Matumizi',
-    expByCategory:'Matumizi kwa Kategoria', recentExp:'Matumizi ya Hivi Karibuni',
-    // Edit modal
-    editCustomer:'Hariri Mteja', savingChanges:'Inahifadhi…', saved:'Imehifadhiwa!',
-    // Worker detail
-    workerDetail:'Maelezo ya Mfanyakazi', workerDetailSub:'Maagizo yote — yaliyokamilika na yanayosubiria',
-    allOrders:'Zote', doneOrders:'Zilizokamilika', pendingOrders:'Zinasubiria',
-    revokeApproval:'Futa Uthibitisho',
-    // General
-    noData:'Hakuna data kwa kipindi hiki.', back:'Rudi',
-    confirmRevoke:'Una uhakika kutaka kufuta uthibitisho huu?',
-    search:'Tafuta', save:'Hifadhi', close:'Funga', print:'Chapisha',
-    copied:'Imenakiliwa!', copy:'Nakili',
-    capture:'Piga Picha & Tambua', confirm:'Thibitisha',
-    cameraHint:'Elekeza gari ndani ya fremu — kisha bonyeza "Piga Picha"',
-    writeNumber:'Andika namba uliyoona:',
   },
   en: {
-    // Nav
     checkin:'Check-in', lookup:'Search', dashboard:'Dashboard', report:'Report',
     database:'All Customers', reminders:'Reminders', expenses:'Expenses',
     pos:'POS — Products', finance:'Finance & Profit', mytasks:'My Tasks', mytoday:'My History',
-    // Periods
     today:'Today', yesterday:'Yesterday', thisWeek:'This week', thisMonth:'This month',
-    allTime:'All time', customDate:'Custom date',
-    // Stats
-    customers:'Customers', revenue:'Revenue', newCust:'New',
+    allTime:'All time', customers:'Customers', revenue:'Revenue', newCust:'New',
     returning:'Returning', completed:'Completed', topVehicle:'Top Vehicle',
-    totalCustomers:'Total Customers', todayVisits:"Today's Visits",
-    todayRevenue:"Today's Revenue", totalRevenue:'Total Revenue',
-    tasksDone:'Completed', tasksPending:'Pending',
-    // Auth
+    noVisits:'No visits for this period.', loading:'Loading…',
     signIn:'Sign in', username:'Username', password:'Password',
-    // Check-in form
     checkIn:'Check in & Send Welcome', searchPlate:'Search Customer',
     assignWorker:'Assign to Worker', saveChanges:'Save Changes',
     cancel:'Cancel', workerPerf:'Worker Performance',
+    totalCustomers:'Total Customers', todayVisits:"Today's Visits",
+    todayRevenue:"Today's Revenue", totalRevenue:'Total Revenue',
+    tasksDone:'Completed', tasksPending:'Pending',
     confirmService:'I served them — Confirm', myJobs:'My Tasks',
-    noVisits:'No visits for this period.', loading:'Loading…',
-    fullName:'Full name', phoneNum:'Phone number', emailAddr:'Email address',
-    vehicleType:'Vehicle type', regNumber:'Registration number',
-    service:'Service', amount:'Amount (TZS)', optional:'optional',
-    noPlateLabel:'Electric vehicle / No plate / Home Carpet',
-    scanBtn:'Open Camera — Confirm Number Yourself',
-    checkInBtn:'Check in & Send Welcome Message',
-    // Lookup
-    lookupTitle:'Search Customer', lookupSub:'Scan camera, or type plate / phone / name',
-    lookupPlaceholder:'Plate, Ngewa ID, phone or name…',
-    lookupHint:'For electric vehicles or carpets, search by phone or name.',
-    registerToday:'Check in for Today',
-    // My tasks
-    myTasksTitle:'My Tasks — Confirm Service',
-    myTasksSub:'Tap "I served them" after completing a job',
-    // My today
-    myTodayTitle:'My History', myTodaySub:'Your customers and revenue for selected period',
-    myCheckins:'My Check-ins', completedTasks:'Completed', myRevenue:'Revenue',
-    // Dashboard
-    totalCust:'Total Customers', todayVisit:"Today's Visits", todayRev:"Today's Revenue", totalRev:'Total Revenue',
-    recentActivity:'Recent Activity',
-    workerPerfTitle:'Worker Performance',
-    assignedJobs:'Jobs assigned', completedJobs:'Completed ✅',
-    pendingJobs:'Pending ⏳', approvedRevenue:'Revenue (completed)',
-    viewWorker:'View', performance:'Performance',
-    // Database
-    dbTitle:'Customer Database', dbSub:'Click 📝 to edit any customer',
-    searchCustomer:'Search by name, plate or phone…',
-    visits:'visits', lastVisit:'Last',
-    // Reminders
-    remTitle:'7-Day Return Reminders', remSub:'Customers who have not returned in 7 days',
-    daysAgo:'days ago', reminderSent:'Reminder sent', sendSMS:'SMS',
-    sendEmail:'Email', sendBoth:'Both',
-    // Expenses
-    expTitle:'Business Expenses', expSub:'Record all expenses',
-    addExpense:'Add Expense', expHistory:'History',
-    selectCategory:'Select Category', description:'Description',
-    date:'Date', saveExpense:'Save Expense', totalExpenses:'Total Expenses',
-    noExpenses:'No expenses for this period.',
-    // POS
-    posTitle:'Available Products', posSub:'Tap a product to add it to the sale',
-    sellItems:'Sell Products', inventory:'Inventory', salesHistory:'Sales History',
-    addItem:'Add Product', receipt:'Sales Receipt',
-    startShopping:'Tap a product to start', total:'Total', note:'Note',
-    checkout:'Complete Sale', clearCart:'Clear Cart',
-    itemName:'Product Name', sellingPrice:'Selling Price (TZS)',
-    unit:'Unit', stockQty:'Current Stock', lowStockAlert:'Low Stock Alert',
-    saveItem:'Save Product',
-    stockLabel:'Stock', lowStock:'Low',
-    totalSales:'Total Sales', noSales:'No sales for this period.',
-    // Finance
-    finTitle:'Financial Summary', finSub:'Revenue, Expenses, and Net Profit',
-    income:'Revenue', expenses2:'Expenses', netProfit:'Net Profit',
-    margin:'Margin %', incomeVsExp:'Revenue vs Expenses',
-    expByCategory:'Expenses by Category', recentExp:'Recent Expenses',
-    // Edit modal
-    editCustomer:'Edit Customer', savingChanges:'Saving…', saved:'Saved!',
-    // Worker detail
-    workerDetail:'Worker Details', workerDetailSub:'All orders — completed and pending',
-    allOrders:'All', doneOrders:'Completed', pendingOrders:'Pending',
-    revokeApproval:'Revoke Approval',
-    // General
-    noData:'No data for this period.', back:'Back',
-    confirmRevoke:'Are you sure you want to revoke this approval?',
-    search:'Search', save:'Save', close:'Close', print:'Print',
-    copied:'Copied!', copy:'Copy',
-    capture:'Capture & Identify', confirm:'Confirm',
-    cameraHint:'Point vehicle in frame — then tap "Capture"',
-    writeNumber:'Enter number you see:',
   }
-};;
+};
 let currentLang = localStorage.getItem('ncw_lang') || 'sw';
 
 function t(key) {
@@ -2559,197 +2692,15 @@ function applyLangToNav() {
 }
 
 function applyLangToForms() {
-  // === FILTER BUTTONS ===
-  document.querySelectorAll('#mytoday-filters .filter-btn').forEach((btn,i)=>{
-    const k=['today','yesterday','thisWeek','thisMonth']; if(k[i]) btn.textContent=t(k[i]);});
-  document.querySelectorAll('#perf-filters .filter-btn').forEach((btn,i)=>{
-    const k=['today','yesterday','thisWeek','thisMonth']; if(k[i]) btn.textContent=t(k[i]);});
-  document.querySelectorAll('#report .filter-btn, #tab-report .filter-bar .filter-btn').forEach((btn,i)=>{
-    const k=['today','yesterday','thisWeek','thisMonth','customDate']; if(k[i]) btn.textContent=t(k[i]);});
-  document.querySelectorAll('#finance-custom-date~.filter-bar .filter-btn, #tab-finance .sub-tab-btn').forEach((btn,i)=>{
-    const k=['today','yesterday','thisWeek','thisMonth','allTime','customDate']; if(k[i]) btn.textContent=t(k[i]);});
-  document.querySelectorAll('#wd-filters .filter-btn').forEach((btn,i)=>{
-    const k=['today','yesterday','thisWeek','thisMonth','customDate']; if(k[i]) btn.textContent=t(k[i]);});
-  document.querySelectorAll('#pos-hist-filters .filter-btn').forEach((btn,i)=>{
-    const k=['today','yesterday','thisWeek','thisMonth','allTime','customDate']; if(k[i]) btn.textContent=t(k[i]);});
-
-  // === LOGIN PAGE ===
-  safeText('login-brand-text', null, '.login-brand');
-  setPlaceholder('login-user', t('username'));
-  setPlaceholder('login-pass', t('password'));
-  const signInBtn = document.querySelector('#login-btn .btn-text') || document.getElementById('login-btn');
-  if(signInBtn) signInBtn.innerHTML = '<i class="ti ti-login"></i> '+t('signIn');
-
-  // === CHECK-IN FORM ===
-  safeLabel('reg-name', t('fullName'));
-  safeLabel('reg-phone', t('phoneNum'));
-  safeLabel('reg-email', t('emailAddr')+' <span class="opt-badge">'+t('optional')+'</span>');
-  safeLabel('reg-type', t('vehicleType'));
-  safeLabel('reg-plate', t('regNumber'));
-  safeLabel('reg-service', t('service'));
-  safeLabel('reg-amount', t('amount'));
-  setPlaceholder('reg-name', currentLang==='sw'?'mfano: Juma Hassan':'e.g. John Smith');
-  setPlaceholder('reg-phone', currentLang==='sw'?'mfano: 0712345678':'e.g. 0712345678');
-  setPlaceholder('reg-plate', currentLang==='sw'?'mfano: T123ABC':'e.g. T123ABC');
-  setPlaceholder('reg-amount', currentLang==='sw'?'mfano: 5000':'e.g. 5000');
-  const noPlateLabel = document.querySelector('.no-plate-toggle label');
-  if(noPlateLabel) noPlateLabel.innerHTML = '<i class="ti ti-bolt" style="color:var(--gold);vertical-align:-2px;margin-right:4px;"></i>'+t('noPlateLabel');
-  const workerLbl = document.querySelector('.worker-assign-label');
-  if(workerLbl) workerLbl.innerHTML = '<i class="ti ti-user-cog" style="vertical-align:-2px;margin-right:4px;"></i>'+t('assignWorker');
-  const checkinBtn = document.getElementById('checkin-btn');
-  if(checkinBtn) checkinBtn.innerHTML = '<i class="ti ti-check"></i> '+t('checkInBtn');
-  const scanBtn = document.getElementById('scan-checkin-btn') || document.querySelector('.scan-btn');
-  if(scanBtn) scanBtn.innerHTML = '<i class="ti ti-camera"></i> '+t('scanBtn');
-
-  // === LOOKUP ===
-  setCardTitle('tab-lookup', t('lookupTitle'), t('lookupSub'));
-  setPlaceholder('lookup-input', t('lookupPlaceholder'));
-
-  // === MY TASKS ===
-  setCardTitle('tab-mytasks', t('myTasksTitle'), t('myTasksSub'));
-
-  // === MY TODAY ===
-  const myTodayTitle = document.getElementById('mytoday-title');
-  if(myTodayTitle) myTodayTitle.textContent = t('myTodayTitle');
-
-  // === CHECK-IN card title ===
-  setCardTitle('tab-checkin', t('checkin'), currentLang==='sw'?'Tumia kamera au andika namba ya usajili':'Use camera or type registration number');
-
-  // === DATABASE ===
-  setCardTitle('tab-database', t('dbTitle'), t('dbSub'));
-  setPlaceholder('db-search', t('searchCustomer'));
-
-  // === REMINDERS ===
-  setCardTitle('tab-reminders', t('remTitle'), t('remSub'));
-
-  // === EXPENSES ===
-  setCardTitle('tab-expenses', t('expTitle'), t('expSub'));
-  const addExpBtn = document.querySelector('#expenses-add .btn-primary');
-  if(addExpBtn) addExpBtn.innerHTML = '<i class="ti ti-check"></i> '+t('saveExpense');
-  const expDateLabel = document.querySelector('[for="exp-date"], label[for="exp-date"]');
-  if(expDateLabel) expDateLabel.textContent = t('date');
-  const expDescLabel = document.querySelector('[for="exp-description"]');
-  if(expDescLabel) expDescLabel.innerHTML = t('description')+' <span class="opt-badge">'+t('optional')+'</span>';
-  const expAmtLabel = document.querySelector('[for="exp-amount"]');
-  if(expAmtLabel) expAmtLabel.textContent = t('amount');
-
-  // === POS ===
-  setPlaceholder('pos-search', currentLang==='sw'?'Tafuta bidhaa…':'Search products…');
-  const receiptTitle = document.querySelector('.cart-title');
-  if(receiptTitle) receiptTitle.innerHTML = '<i class="ti ti-receipt"></i> '+t('receipt');
-  const checkoutBtn = document.getElementById('checkout-btn');
-  if(checkoutBtn) checkoutBtn.innerHTML = '<i class="ti ti-cash-register"></i> '+t('checkout');
-  const clearBtn = document.getElementById('clear-cart-btn');
-  if(clearBtn) clearBtn.innerHTML = '<i class="ti ti-trash"></i> '+t('clearCart');
-  const cartNote = document.getElementById('cart-note');
-  if(cartNote) cartNote.placeholder = currentLang==='sw'?'mfano: Mteja — Juma':'e.g. Customer — John';
-
-  // POS sub-tabs
-  document.querySelectorAll('#tab-pos .sub-tab-btn').forEach((btn,i)=>{
-    const sw=['Uza Bidhaa','Inventori','Historia ya Mauzo','Ongeza Bidhaa'];
-    const en=['Sell Products','Inventory','Sales History','Add Product'];
-    const icons=['ti-shopping-cart','ti-package','ti-history','ti-plus'];
-    if(currentLang==='sw'&&sw[i]) btn.innerHTML=`<i class="ti ${icons[i]}"></i> ${sw[i]}`;
-    else if(en[i]) btn.innerHTML=`<i class="ti ${icons[i]}"></i> ${en[i]}`;
+  // Filter buttons
+  document.querySelectorAll('#mytoday-filters .filter-btn').forEach((btn, i) => {
+    const keys = ['today','yesterday','thisWeek','thisMonth'];
+    if(keys[i]) btn.textContent = t(keys[i]);
   });
-
-  // EXPENSES sub-tabs
-  document.querySelectorAll('#tab-expenses .sub-tab-btn').forEach((btn,i)=>{
-    const sw=['Ongeza Matumizi','Historia'];
-    const en=['Add Expense','History'];
-    const icons=['ti-plus','ti-list'];
-    if(currentLang==='sw'&&sw[i]) btn.innerHTML=`<i class="ti ${icons[i]}"></i> ${sw[i]}`;
-    else if(en[i]) btn.innerHTML=`<i class="ti ${icons[i]}"></i> ${en[i]}`;
+  document.querySelectorAll('#perf-filters .filter-btn').forEach((btn, i) => {
+    const keys = ['today','yesterday','thisWeek','thisMonth'];
+    if(keys[i]) btn.textContent = t(keys[i]);
   });
-
-  // === FINANCE ===
-  setCardTitle('tab-finance', t('finTitle'), t('finSub'));
-
-  // === EDIT MODAL ===
-  const editModalTitle = document.querySelector('#edit-modal .modal-title span');
-  if(editModalTitle && editModalTitle.innerHTML.includes('ti-edit')) {
-    editModalTitle.innerHTML = '<i class="ti ti-edit" style="vertical-align:-2px;margin-right:6px;color:var(--green-mid);"></i>'+t('editCustomer');
-  }
-  const editSaveBtn = document.querySelector('#edit-modal .btn-primary');
-  if(editSaveBtn) editSaveBtn.innerHTML = '<i class="ti ti-check"></i> '+t('saveChanges');
-  const editCancelBtn = document.querySelector('#edit-modal .btn-outline');
-  if(editCancelBtn) editCancelBtn.textContent = t('cancel');
-
-  // Edit modal labels
-  ['edit-name','edit-phone','edit-email','edit-type','edit-service','edit-amount','edit-worker'].forEach((id,i)=>{
-    const lblSw=['Jina kamili','Namba ya Simu','Barua pepe','Aina ya Chombo','Huduma ya Mwisho','Kiasi cha Mwisho (TZS)','Mfanyakazi Aliyehudumia (wa mwisho)'];
-    const lblEn=['Full name','Phone number','Email address','Vehicle type','Last service','Last amount (TZS)','Last worker'];
-    const el = document.querySelector(`[for="${id}"], label[for="${id}"]`) || 
-                document.querySelector(`#edit-modal label:nth-of-type(${i+1})`);
-    // Use form-label before the input
-    const input = document.getElementById(id);
-    if(input && input.previousElementSibling && input.previousElementSibling.classList.contains('form-label')) {
-      input.previousElementSibling.textContent = currentLang==='sw'?(lblSw[i]||''):(lblEn[i]||'');
-    }
-  });
-
-  // === TOPBAR ===
-  const topbarSub = document.querySelector('.topbar-sub');
-  if(topbarSub) topbarSub.textContent = currentLang==='sw'?'Ngewa Car Wash — Mfumo wa Wateja':'Ngewa Car Wash — Customer System';
-
-  // === USER ROLE ===
-  const roleEl = document.getElementById('user-role');
-  if(roleEl) roleEl.textContent = currentRole==='admin'?(currentLang==='sw'?'Msimamizi':'Admin'):(currentLang==='sw'?'Mfanyakazi':'Worker');
-
-  // === WORKER DETAIL ===
-  const wdSub = document.querySelector('#tab-worker-detail .card-sub');
-  if(wdSub) wdSub.textContent = t('workerDetailSub');
-  document.getElementById('wd-status-all')?.querySelector && (() => {
-    const statusBtns = [document.getElementById('wd-status-all'), document.getElementById('wd-status-done'), document.getElementById('wd-status-pending')];
-    const swTxt=['Zote','Zilizokamilika','Zinasubiria'];
-    const enTxt=['All','Completed','Pending'];
-    statusBtns.forEach((btn,i)=>{ if(btn) btn.textContent = currentLang==='sw'?swTxt[i]:enTxt[i]; });
-  })();
-
-  // Re-render visible section to update dynamic content
-  const activeSection = document.querySelector('.section.active');
-  if(activeSection && activeSection.id) {
-    const name = activeSection.id.replace('tab-','');
-    // Re-render to update translated dynamic text
-    const renders = {
-      report: renderReport, database: renderDatabase, reminders: renderReminders,
-      dashboard: ()=>{renderDashboard();renderWorkerPerf();},
-      mytasks: renderMyTasks, mytoday: renderMyToday,
-      expenses: ()=>{ const lst=document.getElementById('expenses-list'); if(lst&&lst.classList.contains('active')) renderExpenseList(); },
-      pos: ()=>{ const inv=document.getElementById('pos-inventory'); if(inv&&inv.classList.contains('active')) renderInventory(); },
-      finance: renderFinance,
-    };
-    if(renders[name]) setTimeout(renders[name], 50);
-  }
-}
-
-// Helper functions for language application
-function safeText(id, text, selector) {
-  const el = id ? document.getElementById(id) : (selector ? document.querySelector(selector) : null);
-  if(el && text) el.textContent = text;
-}
-function setPlaceholder(id, text) {
-  const el = document.getElementById(id);
-  if(el) el.placeholder = text;
-}
-function safeLabel(inputId, html) {
-  const input = document.getElementById(inputId);
-  if(input) {
-    let label = input.previousElementSibling;
-    if(!label || !label.classList.contains('form-label')) {
-      label = input.closest('.form-group')?.querySelector('.form-label') ||
-              input.closest('div')?.querySelector('.form-label');
-    }
-    if(label) label.innerHTML = html;
-  }
-}
-function setCardTitle(tabId, title, sub) {
-  const tab = document.getElementById('tab-'+tabId);
-  if(!tab) return;
-  const titleEl = tab.querySelector('.card-title');
-  const subEl = tab.querySelector('.card-sub');
-  if(titleEl) titleEl.textContent = title;
-  if(subEl) subEl.textContent = sub||'';
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -2782,7 +2733,7 @@ function setMyTodayFilter(f, btn) {
 async function renderMyToday() {
   const el = document.getElementById('mytoday-list');
   if(!el) return;
-  el.innerHTML = '<div class="empty"><span class="spinner spinner-dark"></span></div>';
+  el.innerHTML = skeletonRows();
   try {
     const visits = await api('/api/my-visits');
     const now = new Date();
@@ -2941,7 +2892,7 @@ function setFinanceFilter(f, btn) {
 async function renderFinance() {
   const el = document.getElementById('finance-content');
   if(!el) return;
-  el.innerHTML = '<div class="empty"><span class="spinner spinner-dark"></span></div>';
+  el.innerHTML = skeletonRows();
   try {
     const [expenses, visits] = await Promise.all([api('/api/expenses'), api('/api/visits')]);
     const now = new Date();
@@ -3050,7 +3001,7 @@ function setPosHistFilter(f, btn) {
 async function renderPosSalesHistory() {
   const el = document.getElementById('pos-sales-list');
   if(!el) return;
-  el.innerHTML = '<div class="empty"><span class="spinner spinner-dark"></span></div>';
+  el.innerHTML = skeletonRows();
   try {
     const sales = await api('/api/pos/sales');
     const now = new Date();
@@ -3087,7 +3038,7 @@ async function renderPosSalesHistory() {
 async function renderWorkerPerf() {
   const ws = document.getElementById('worker-stats');
   if(!ws) return;
-  ws.innerHTML = '<div class="empty"><span class="spinner spinner-dark"></span></div>';
+  ws.innerHTML=skeletonRows(4);
   try {
     const visits = await api('/api/visits');
     const now = new Date();
@@ -3188,7 +3139,7 @@ async function renderWorkerDetail() {
   const statsEl = document.getElementById('wd-stats');
   const listEl = document.getElementById('wd-list');
   if(!listEl) return;
-  listEl.innerHTML='<div class="empty"><span class="spinner spinner-dark"></span></div>';
+  listEl.innerHTML=skeletonRows();
   try {
     const now = new Date();
     let url = `/api/worker-orders/${currentWorkerDetail}?period=${wdFilter}`;
@@ -3274,13 +3225,29 @@ document.addEventListener('fullscreenchange', function() {
   }, 500);
 });
 
-
+function toggleTheme() {
+  const body = document.body;
+  const icon = document.getElementById('theme-icon');
+  const iconMob = document.getElementById('theme-icon-mob');
+  
+  if(body.classList.contains('dark')) {
+    body.classList.remove('dark');
+    if(icon) icon.className = 'ti ti-moon';
+    if(iconMob) iconMob.className = 'ti ti-moon';
+    localStorage.setItem('ncw_theme', 'light');
+  } else {
+    body.classList.add('dark');
+    if(icon) icon.className = 'ti ti-sun';
+    if(iconMob) iconMob.className = 'ti ti-sun';
+    localStorage.setItem('ncw_theme', 'dark');
+  }
+}
 
 // Load saved theme on startup
 (function() {
   const saved = localStorage.getItem('ncw_theme');
   if(saved === 'dark') {
-    
+    document.body.classList.add('dark');
     setTimeout(() => {
       const icon = document.getElementById('theme-icon');
       const iconMob = document.getElementById('theme-icon-mob');
@@ -3301,11 +3268,89 @@ document.addEventListener('fullscreenchange', function() {
   // Detect forced dark mode na pinga
   var bg = getComputedStyle(document.body).backgroundColor;
   if (bg === 'rgb(0, 0, 0)' || bg === 'rgb(18, 18, 18)') {
-    
+    document.body.classList.remove('dark');
     document.body.style.setProperty('background', '#F5F7F6', 'important');
     document.body.style.setProperty('color', '#0F1923', 'important');
   }
 })();
+
+// PWA service worker registration
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  });
+}
+
+
+// ── Haptic feedback (Vibration API) ──────────────────────────────
+function haptic(ms){
+  try{ if(navigator.vibrate) navigator.vibrate(ms||8); }catch(e){}
+}
+
+
+// ── Skeleton loader helper ────────────────────────────────────────
+function skeletonRows(n=4){
+  return Array.from({length:n},(_,i)=>`
+    <div class="skel-row">
+      <div class="skeleton skel-avatar"></div>
+      <div style="flex:1;">
+        <div class="skeleton skel-line" style="width:${60+i*7}%"></div>
+        <div class="skeleton skel-line" style="width:40%;height:9px;"></div>
+      </div>
+      <div class="skeleton skel-line" style="width:70px;height:30px;border-radius:8px;"></div>
+    </div>`).join('');
+}
+
+
+// ── FAB action ────────────────────────────────────────────────────
+function fabAction(){
+  haptic(12);
+  const bnCheckin = document.getElementById('bn-checkin');
+  const navCheckin = document.getElementById('nav-checkin');
+  showTab('checkin', bnCheckin||navCheckin||{classList:{add:()=>{},remove:()=>{}}}, t('checkin')||'Usajili');
+}
+
+
+// ── PWA install prompt ────────────────────────────────────────────
+let pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  pwaPrompt = e;
+  // Show banner only if not already installed and user is logged in
+  if(token && currentRole){
+    const banner = document.getElementById('pwa-banner');
+    if(banner && !localStorage.getItem('pwa_dismissed')){
+      banner.style.display = 'flex';
+    }
+  }
+});
+function installPWA(){
+  if(pwaPrompt){
+    pwaPrompt.prompt();
+    pwaPrompt.userChoice.then(r=>{
+      if(r.outcome==='accepted') hidePWABanner();
+      pwaPrompt=null;
+    });
+  } else {
+    // iOS fallback
+    alert('Bonyeza Share → "Add to Home Screen" kwenye Safari');
+  }
+}
+function hidePWABanner(){
+  const b=document.getElementById('pwa-banner');
+  if(b) b.style.display='none';
+  localStorage.setItem('pwa_dismissed','1');
+}
+// Show banner after login
+function showPWABannerIfNeeded(){
+  if(pwaPrompt && !localStorage.getItem('pwa_dismissed')){
+    setTimeout(()=>{
+      const b=document.getElementById('pwa-banner');
+      if(b) b.style.display='flex';
+    }, 3000);
+  }
+}
+
 </script>
 </body>
 </html>
