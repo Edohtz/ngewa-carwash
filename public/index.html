@@ -3,12 +3,19 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,viewport-fit=cover"/>
-<title>Ngewa Car Wash — System</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'><circle cx='40' cy='40' r='40' fill='%230F6E56'/><rect x='15' y='42' width='50' height='16' rx='4' fill='white'/><path d='M19 42 L25 32 Q27 30 31 30 L49 30 Q53 30 55 32 L61 42Z' fill='white'/><circle cx='27' cy='58' r='6' fill='%230B5E47'/><circle cx='53' cy='58' r='6' fill='%230B5E47'/></svg>"/>
+<meta name="color-scheme" content="light"/>
+<meta name="theme-color" content="#0F6E56"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Ngewa"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<link rel="manifest" href="/manifest.webmanifest"/>
+<title>Ngewa Car Wash</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
 <style>
+
 :root{
   --green:#0B5E47;--green-mid:#0F6E56;--green-light:#1aaa80;--green-pale:#E8F5F0;--green-border:#A8D5C2;
   --gold:#D4A017;--gold-pale:#FDF6E3;--gold-border:#EAD08A;
@@ -870,158 +877,359 @@ body.dark {
   .app-main{margin-left:60px;}
 }
 
+
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE-FIRST APP LAYOUT — COMPLETE REWRITE
+   ══════════════════════════════════════════════════════════ */
+
+/* Hide old sidebar layout completely on mobile */
+@media(max-width:900px){
+  .sidebar         { display:none !important; }
+  .app-main        { margin-left:0 !important; width:100%; }
+  .topbar          { display:none !important; }
+  .mobile-topbar   { display:flex !important; }
+  .bottom-nav      { display:block !important; }
+  .mobile-fab      { display:flex !important; }
+  .main-content    { padding:0.875rem 0.875rem 90px !important; }
+  .pos-sell-grid   { grid-template-columns:1fr !important; }
+  .frow            { grid-template-columns:1fr !important; }
+  .modal-box       { max-width:100% !important; margin:0.5rem !important; }
+  input.fi, select.fi { font-size:16px !important; }
+  .stats-grid      { grid-template-columns:1fr 1fr !important; }
+  .worker-stats-grid{ grid-template-columns:1fr 1fr !important; }
+  .finance-grid    { grid-template-columns:1fr !important; }
+}
+
+/* Mobile topbar */
+.mobile-topbar {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  background: linear-gradient(135deg, #0B5E47 0%, #0F6E56 60%, #1aaa80 100%);
+  padding: 12px 16px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 12px rgba(0,0,0,.18);
+  gap: 10px;
+}
+.mobile-topbar .hamburger {
+  background: rgba(255,255,255,.15);
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mob-title-wrap { flex: 1; text-align: center; }
+.mob-title-wrap .ncw-title { font-size: 14px; font-weight: 800; color: #fff; letter-spacing:.5px; display:block; }
+.mob-title-wrap .mob-page { font-size: 10px; color: rgba(255,255,255,.6); letter-spacing:1px; text-transform:uppercase; display:block; margin-top:1px; }
+.mob-right { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+
+/* Bottom tab bar */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 400;
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1.5px solid rgba(15,110,86,.15);
+  box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 6px));
+}
+.bn-inner {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  gap: 0;
+}
+.bn-inner::-webkit-scrollbar { display: none; }
+.bn-item {
+  flex: 1;
+  min-width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 4px 4px;
+  border-radius: 12px;
+  color: #8FA0A8;
+  cursor: pointer;
+  transition: all .18s cubic-bezier(.34,1.56,.64,1);
+  position: relative;
+  border: none;
+  background: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.bn-item i { font-size: 20px; transition: transform .22s cubic-bezier(.34,1.56,.64,1); }
+.bn-item span { font-size: 9px; font-weight: 600; white-space: nowrap; letter-spacing:.2px; }
+.bn-badge {
+  position: absolute;
+  top: 4px;
+  right: 50%;
+  transform: translateX(8px);
+  background: #e53e3e;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.bn-item.active { color: #0F6E56; }
+.bn-item.active i { transform: translateY(-3px) scale(1.15); }
+.bn-item.active span { color: #0F6E56; font-weight: 700; }
+.bn-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 3px;
+  background: linear-gradient(90deg, #0F6E56, #1aaa80);
+  border-radius: 0 0 3px 3px;
+}
+
+/* Mobile FAB */
+.mobile-fab {
+  display: none;
+  position: fixed;
+  bottom: 76px;
+  right: 18px;
+  width: 54px;
+  height: 54px;
+  background: linear-gradient(135deg, #0F6E56, #1aaa80);
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(15,110,86,.4);
+  z-index: 350;
+  cursor: pointer;
+  border: none;
+  transition: transform .18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-fab:active { transform: scale(.9); }
+.mobile-fab i { font-size: 22px; color: #fff; }
+
+/* Sidebar overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 450;
+}
+.sidebar-overlay.open { display: block; }
+
+/* Sidebar drawer on mobile */
+@media(max-width:900px){
+  .sidebar {
+    display: flex !important;
+    position: fixed;
+    top: 0; left: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 500;
+    transform: translateX(-100%);
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    overflow-y: auto;
+  }
+  .sidebar.mobile-open { transform: translateX(0) !important; }
+  .sidebar-footer { flex-shrink: 0; }
+  .sidebar-nav { min-height: 0; }
+}
+
+/* Desktop */
+@media(min-width:901px){
+  .bottom-nav    { display: none !important; }
+  .mobile-topbar { display: none !important; }
+  .mobile-fab    { display: none !important; }
+  .app-main      { margin-left: 230px; }
+}
+
+/* Collapsing sidebar on medium screens */
+@media(min-width:901px) and (max-width:1100px){
+  .sidebar { width: 60px; overflow: hidden; transition: width .22s ease; }
+  .sidebar:hover { width: 230px; }
+  .sidebar-brand,.sidebar-tagline,.nav-label,.nav-section,.user-name,.user-role {
+    opacity: 0; white-space: nowrap; transition: opacity .15s;
+  }
+  .sidebar:hover .sidebar-brand,.sidebar:hover .sidebar-tagline,.sidebar:hover .nav-label,
+  .sidebar:hover .nav-section,.sidebar:hover .user-name,.sidebar:hover .user-role { opacity:1; }
+  .nav-item { justify-content: center; }
+  .sidebar:hover .nav-item { justify-content: flex-start; }
+  .app-main { margin-left: 60px; }
+}
+
+.sidebar { overflow: hidden; }
+.sidebar-nav { flex:1; min-height:0; overflow-y:auto; }
+.sidebar-footer { flex-shrink:0; }
+
+/* PWA banner */
+#pwa-banner {
+  display: none;
+  position: fixed;
+  bottom: 78px;
+  left: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, #0B5E47, #1aaa80);
+  color: #fff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  z-index: 360;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  align-items: center;
+  gap: 12px;
+}
+
+/* Skeleton */
+@keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+.skeleton{background:linear-gradient(90deg,#eef1f0 25%,#f7f9f8 37%,#eef1f0 63%);background-size:400% 100%;animation:shimmer 1.4s ease infinite;border-radius:8px;}
+.skel-line{height:12px;margin-bottom:8px;}
+.skel-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid #E2E8E5;border-radius:10px;margin-bottom:6px;}
+.skel-avatar{width:38px;height:38px;border-radius:50%;flex-shrink:0;}
+
+/* General polish */
+.btn-primary { background:linear-gradient(135deg,#0F6E56,#0B5E47);box-shadow:0 2px 10px rgba(15,110,86,.25); }
+.btn-primary:active { transform:scale(.97); }
+@keyframes cardIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+.stat-card { animation:cardIn .25s ease both; }
+@media(max-width:900px){ input,select,textarea { font-size:16px !important; } }
+
 </style>
-
-<meta name="color-scheme" content="only light"/>
-<meta name="theme-color" content="#FFFFFF"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-
 </head>
 <body>
 
-<!-- ═══════════════════ LOGIN ═══════════════════ -->
-<div id="login-page">
-  <div class="login-outer">
-    <div class="login-box">
-      <div class="login-logo-wrap">
-        <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+<!-- LOGIN -->
+<div id="login-page" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(155deg,#0B5E47 0%,#0F6E56 50%,#1aaa80 100%);padding:1rem;">
+  <div style="width:100%;max-width:420px;">
+    <div style="background:#fff;border-radius:20px;padding:2.5rem 2rem;box-shadow:0 12px 40px rgba(0,0,0,.2);">
+      <div style="text-align:center;margin-bottom:1.5rem;">
+        <svg width="72" height="72" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
           <circle cx="40" cy="40" r="40" fill="#0F6E56"/>
-          <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
-          <ellipse cx="27" cy="22" rx="5" ry="7" fill="rgba(255,255,255,0.9)" transform="rotate(-15 27 22)"/>
-          <ellipse cx="40" cy="18" rx="5" ry="7" fill="rgba(255,255,255,0.7)"/>
-          <ellipse cx="53" cy="22" rx="5" ry="7" fill="rgba(255,255,255,0.9)" transform="rotate(15 53 22)"/>
+          <ellipse cx="27" cy="22" rx="5" ry="7" fill="rgba(255,255,255,.9)" transform="rotate(-15 27 22)"/>
+          <ellipse cx="40" cy="18" rx="5" ry="7" fill="rgba(255,255,255,.7)"/>
+          <ellipse cx="53" cy="22" rx="5" ry="7" fill="rgba(255,255,255,.9)" transform="rotate(15 53 22)"/>
           <rect x="15" y="42" width="50" height="16" rx="4" fill="white"/>
           <path d="M19 42 L25 32 Q27 30 31 30 L49 30 Q53 30 55 32 L61 42Z" fill="white"/>
-          <rect x="29" y="32" width="9" height="8" rx="2" fill="#0F6E56" opacity="0.45"/>
-          <rect x="42" y="32" width="9" height="8" rx="2" fill="#0F6E56" opacity="0.45"/>
           <circle cx="27" cy="58" r="6" fill="#0B5E47"/>
-          <circle cx="27" cy="58" r="2.5" fill="white" opacity="0.5"/>
           <circle cx="53" cy="58" r="6" fill="#0B5E47"/>
-          <circle cx="53" cy="58" r="2.5" fill="white" opacity="0.5"/>
         </svg>
-        <div class="login-brand">NGEWA CAR WASH</div>
-        <div class="login-tagline">Huduma Nzuri na Bora</div>
+        <div style="font-size:22px;font-weight:800;color:#0F6E56;margin-top:10px;letter-spacing:.5px;">NGEWA CAR WASH</div>
+        <div style="font-size:11px;color:#8FA0A8;letter-spacing:1.2px;text-transform:uppercase;margin-top:3px;">Huduma Nzuri na Bora</div>
       </div>
-      <hr class="ldiv"/>
-      <div class="login-error" id="login-error"></div>
-      <div class="form-group">
-        <label class="form-label">Jina la mtumiaji</label>
-        <input class="fi" type="text" id="login-user" placeholder="Weka jina lako"/>
+      <hr style="border:none;border-top:1px solid #E2E8E5;margin:1.25rem 0;"/>
+      <div id="login-error" style="display:none;background:#FEF0F0;color:#C0392B;padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:1rem;border:1px solid #F5C6C6;"></div>
+      <div style="margin-bottom:1rem;">
+        <label style="font-size:11px;font-weight:700;color:#5A6A75;display:block;margin-bottom:5px;letter-spacing:.5px;text-transform:uppercase;">Jina la mtumiaji</label>
+        <input class="fi" type="text" id="login-user" placeholder="Weka jina lako" autocomplete="username" style="width:100%;padding:11px 14px;border:1.5px solid #E2E8E5;border-radius:10px;font-size:15px;font-family:inherit;outline:none;"/>
       </div>
-      <div class="form-group" style="margin-bottom:1.5rem;">
-        <label class="form-label">Neno la siri</label>
-        <input class="fi" type="password" id="login-pass" placeholder="Weka neno la siri" onkeydown="if(event.key==='Enter')doLogin()"/>
+      <div style="margin-bottom:1.5rem;">
+        <label style="font-size:11px;font-weight:700;color:#5A6A75;display:block;margin-bottom:5px;letter-spacing:.5px;text-transform:uppercase;">Neno la siri</label>
+        <input class="fi" type="password" id="login-pass" placeholder="Weka neno la siri" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="current-password" style="width:100%;padding:11px 14px;border:1.5px solid #E2E8E5;border-radius:10px;font-size:15px;font-family:inherit;outline:none;"/>
       </div>
-      <button class="btn btn-primary btn-full" id="login-btn" onclick="doLogin()">
+      <button id="login-btn" onclick="doLogin()" style="width:100%;background:linear-gradient(135deg,#0F6E56,#0B5E47);color:#fff;border:none;padding:13px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;">
         <i class="ti ti-login"></i> Ingia
       </button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════ APP ═══════════════════ -->
-<div id="app-page">
-  <div class="sidebar">
-    <div class="sidebar-logo">
-      <svg width="40" height="40" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="40" cy="40" r="40" fill="rgba(255,255,255,0.15)"/>
-        <ellipse cx="27" cy="22" rx="5" ry="7" fill="rgba(255,255,255,0.9)" transform="rotate(-15 27 22)"/>
-        <ellipse cx="40" cy="18" rx="5" ry="7" fill="rgba(255,255,255,0.7)"/>
-        <ellipse cx="53" cy="22" rx="5" ry="7" fill="rgba(255,255,255,0.9)" transform="rotate(15 53 22)"/>
-        <rect x="15" y="42" width="50" height="16" rx="4" fill="white"/>
-        <path d="M19 42 L25 32 Q27 30 31 30 L49 30 Q53 30 55 32 L61 42Z" fill="white"/>
-        <rect x="29" y="32" width="9" height="8" rx="2" fill="#0F6E56" opacity="0.45"/>
-        <rect x="42" y="32" width="9" height="8" rx="2" fill="#0F6E56" opacity="0.45"/>
-        <circle cx="27" cy="58" r="6" fill="rgba(0,0,0,0.25)"/>
-        <circle cx="27" cy="58" r="2.5" fill="white" opacity="0.4"/>
-        <circle cx="53" cy="58" r="6" fill="rgba(0,0,0,0.25)"/>
-        <circle cx="53" cy="58" r="2.5" fill="white" opacity="0.4"/>
-      </svg>
-      <div class="sidebar-brand">NGEWA CAR WASH</div>
-      <div class="sidebar-tagline">Huduma Nzuri na Bora</div>
-    </div>
-    <nav class="sidebar-nav" id="sidebar-nav"></nav>
-    <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="user-av" id="user-av">—</div>
-        <div>
-          <div class="user-name" id="user-name">—</div>
-          <div class="user-role" id="user-role">—</div>
-        </div>
-        <div class="logout-btn" onclick="toggleTheme()" title="Badilisha Theme" style="margin-right:8px;">
-        <i class="ti ti-moon" id="theme-icon" style="font-size:17px;"></i></div>
-        <div class="logout-btn" onclick="doLogout()" title="Toka"><i class="ti ti-logout" style="font-size:17px;"></i></div>
-      </div>
-    </div>
-  </div>
+<!-- APP -->
+<div id="app-page" style="display:none;">
 
-  <!-- Mobile overlay -->
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
 
-  <!-- Bottom tab bar (mobile/tablet) -->
-
-
-  <!-- PWA install banner -->
-  <div id="pwa-banner" style="display:none;position:fixed;bottom:90px;left:12px;right:12px;
-    background:linear-gradient(135deg,#0B5E47,#1aaa80);color:#fff;border-radius:16px;
-    padding:14px 16px;z-index:600;box-shadow:0 8px 24px rgba(0,0,0,.25);
-    display:none;align-items:center;gap:12px;animation:cardIn .3s ease;">
-    <div style="width:40px;height:40px;background:rgba(255,255,255,.15);border-radius:12px;
-      display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-      <i class="ti ti-download" style="font-size:20px;"></i>
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="main-sidebar" style="background:linear-gradient(180deg,#0B5E47,#0F6E56 70%,#085041);position:fixed;top:0;left:0;width:230px;height:100vh;display:flex;flex-direction:column;z-index:200;box-shadow:4px 0 20px rgba(0,0,0,.12);">
+    <div style="padding:1.5rem 1.25rem 1rem;border-bottom:1px solid rgba(255,255,255,.1);">
+      <svg width="40" height="40" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="40" r="40" fill="rgba(255,255,255,.15)"/>
+        <ellipse cx="27" cy="22" rx="5" ry="7" fill="rgba(255,255,255,.9)" transform="rotate(-15 27 22)"/>
+        <ellipse cx="40" cy="18" rx="5" ry="7" fill="rgba(255,255,255,.7)"/>
+        <ellipse cx="53" cy="22" rx="5" ry="7" fill="rgba(255,255,255,.9)" transform="rotate(15 53 22)"/>
+        <rect x="15" y="42" width="50" height="16" rx="4" fill="white"/>
+        <path d="M19 42 L25 32 Q27 30 31 30 L49 30 Q53 30 55 32 L61 42Z" fill="white"/>
+        <circle cx="27" cy="58" r="6" fill="rgba(0,0,0,.25)"/>
+        <circle cx="53" cy="58" r="6" fill="rgba(0,0,0,.25)"/>
+      </svg>
+      <div class="sidebar-brand" style="font-size:14px;font-weight:800;color:#fff;letter-spacing:.5px;margin-top:8px;">NGEWA CAR WASH</div>
+      <div class="sidebar-tagline" style="font-size:9px;color:rgba(255,255,255,.5);letter-spacing:1.2px;text-transform:uppercase;">Huduma Nzuri na Bora</div>
     </div>
-    <div style="flex:1;">
-      <div style="font-size:13px;font-weight:700;">Weka kwenye Simu yako</div>
-      <div style="font-size:11px;opacity:.8;margin-top:2px;">Fungua haraka kama app halisi</div>
+    <nav class="sidebar-nav" id="sidebar-nav" style="flex:1;padding:.75rem 0;min-height:0;overflow-y:auto;">
+      <div class="nav-section" style="font-size:9px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:1.8px;text-transform:uppercase;padding:8px 1.25rem 3px;">Menyu</div>
+    </nav>
+    <div class="sidebar-footer" style="padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.1);flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:9px;">
+        <div id="user-av" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;">—</div>
+        <div>
+          <div id="user-name" style="font-size:13px;font-weight:600;color:#fff;">—</div>
+          <div id="user-role" style="font-size:10px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.5px;">—</div>
+        </div>
+        <div onclick="doLogout()" title="Toka" style="margin-left:auto;cursor:pointer;color:rgba(255,255,255,.4);">
+          <i class="ti ti-logout" style="font-size:17px;"></i>
+        </div>
+      </div>
     </div>
-    <button onclick="installPWA()" style="background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.4);
-      color:#fff;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">
-      Weka
-    </button>
-    <button onclick="hidePWABanner()" style="background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:18px;padding:4px;">✕</button>
   </div>
 
-  <!-- Mobile FAB — quick check-in -->
-  <button class="mobile-fab" id="mobile-fab" onclick="fabAction()" title="Usajili Mpya" aria-label="Quick Check-in">
-    <i class="ti ti-user-plus"></i>
-  </button>
+  <!-- MAIN -->
+  <div class="app-main" style="display:flex;flex-direction:column;min-height:100vh;margin-left:230px;">
 
-  <nav class="bottom-nav" id="bottom-nav"><div class="bn-scroll" id="bn-scroll"></div></nav>
-
-  <div class="app-main">
     <!-- Mobile topbar -->
-        <div class="mobile-topbar" id="mobile-topbar">
-      <button class="hamburger" onclick="openMobileSidebar()" aria-label="Menu">&#9776;</button>
-      <div style="display:flex;flex-direction:column;align-items:center;">
-        <span class="ncw-title" id="mob-page-title">NGEWA CAR WASH</span>
-        <span style="font-size:9px;color:rgba(255,255,255,.55);letter-spacing:1.2px;text-transform:uppercase;" id="mob-page-sub">Huduma Nzuri na Bora</span>
+    <div class="mobile-topbar" id="mobile-topbar">
+      <button class="hamburger" onclick="openMobileSidebar()">&#9776;</button>
+      <div class="mob-title-wrap">
+        <span class="ncw-title">NGEWA CAR WASH</span>
+        <span class="mob-page" id="mob-page-title">Dashibodi</span>
       </div>
-      <div style="display:flex;align-items:center;gap:6px;">
-        <div class="lang-toggle">
-          <button class="lang-btn active" id="mob-lang-sw" data-lang-btn="sw" onclick="setLang('sw')">SW</button>
-          <button class="lang-btn" id="mob-lang-en" data-lang-btn="en" onclick="setLang('en')">EN</button>
+      <div class="mob-right">
+        <div style="display:flex;align-items:center;gap:3px;background:rgba(255,255,255,.12);border-radius:20px;padding:3px;">
+          <button data-lang-btn="sw" onclick="setLang('sw')" id="mob-lang-sw" style="padding:3px 9px;border-radius:16px;font-size:11px;font-weight:700;cursor:pointer;border:none;background:rgba(255,255,255,.9);color:#0F6E56;font-family:inherit;">SW</button>
+          <button data-lang-btn="en" onclick="setLang('en')" id="mob-lang-en" style="padding:3px 9px;border-radius:16px;font-size:11px;font-weight:700;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,.7);font-family:inherit;">EN</button>
         </div>
       </div>
     </div>
 
-    <div class="topbar">
+    <!-- Desktop topbar -->
+    <div class="topbar" style="background:#fff;border-bottom:1px solid #E2E8E5;padding:.875rem 1.75rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.06);">
       <div>
-        <div class="topbar-title" id="topbar-title">Dashibodi</div>
-        <div class="topbar-sub">Ngewa Car Wash — Mfumo wa Wateja</div>
+        <div id="topbar-title" style="font-size:16px;font-weight:700;color:#0F1923;">Dashibodi</div>
+        <div style="font-size:11px;color:#8FA0A8;margin-top:1px;">Ngewa Car Wash — Mfumo wa Wateja</div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div class="lang-toggle">
-          <button class="lang-btn active" id="lang-sw" data-lang-btn="sw" onclick="setLang('sw')">SW</button>
-          <button class="lang-btn" id="lang-en" data-lang-btn="en" onclick="setLang('en')">EN</button>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="display:flex;align-items:center;gap:3px;background:#E8F5F0;border-radius:20px;padding:3px;">
+          <button data-lang-btn="sw" onclick="setLang('sw')" id="lang-sw" style="padding:3px 10px;border-radius:16px;font-size:11px;font-weight:700;cursor:pointer;border:none;background:#0F6E56;color:#fff;font-family:inherit;">SW</button>
+          <button data-lang-btn="en" onclick="setLang('en')" id="lang-en" style="padding:3px 10px;border-radius:16px;font-size:11px;font-weight:700;cursor:pointer;border:none;background:transparent;color:#5A6A75;font-family:inherit;">EN</button>
         </div>
         <div style="text-align:right;">
-          <div class="topbar-clock" id="live-clock">00:00:00</div>
-          <div class="topbar-date" id="live-date">—</div>
+          <div id="live-clock" style="font-size:14px;font-weight:700;color:#0F6E56;">00:00:00</div>
+          <div id="live-date" style="font-size:11px;color:#8FA0A8;">—</div>
         </div>
       </div>
     </div>
 
-    <div class="main-content">
+    <!-- Content -->
+    <div class="main-content" style="padding:1.75rem;flex:1;">
+
 
       <!-- CHECK-IN -->
       <div id="tab-checkin" class="section">
@@ -1540,10 +1748,27 @@ body.dark {
           <div id="wd-list"></div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
+
+<!-- PWA Banner -->
+<div id="pwa-banner" style="display:none;position:fixed;bottom:78px;left:12px;right:12px;background:linear-gradient(135deg,#0B5E47,#1aaa80);color:#fff;border-radius:16px;padding:14px 16px;z-index:360;box-shadow:0 8px 24px rgba(0,0,0,.25);align-items:center;gap:12px;">
+  <div style="width:40px;height:40px;background:rgba(255,255,255,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-download" style="font-size:20px;"></i></div>
+  <div style="flex:1;"><div style="font-size:13px;font-weight:700;">Weka kwenye Simu yako</div><div style="font-size:11px;opacity:.8;margin-top:2px;">Fungua haraka kama app halisi</div></div>
+  <button onclick="installPWA()" style="background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.4);color:#fff;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">Weka</button>
+  <button onclick="hidePWABanner()" style="background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:20px;padding:4px;line-height:1;">&#x2715;</button>
+</div>
+
+<!-- FAB -->
+<button class="mobile-fab" id="mobile-fab" onclick="fabAction()" aria-label="Usajili Mpya">
+  <i class="ti ti-user-plus"></i>
+</button>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="bn-inner" id="bn-inner"></div>
+</nav>
 
 <!-- EDIT MODAL -->
 <div class="modal-overlay" id="edit-modal">
@@ -1597,6 +1822,7 @@ body.dark {
 </div>
 
 <script>
+
 let token=localStorage.getItem('ncw_token')||'';
 let currentRole=localStorage.getItem('ncw_role')||'';
 let currentUser=localStorage.getItem('ncw_user')||'';
@@ -1670,70 +1896,6 @@ function doLogout(){
   document.getElementById('login-page').style.display='flex';
 }
 
-function startApp(){
-  document.getElementById('login-page').style.display='none';
-  document.getElementById('app-page').style.display='block';
-  document.getElementById('login-error').style.display='none';
-  document.getElementById('user-av').textContent=ini(currentUser);
-  document.getElementById('user-name').textContent=currentUser;
-  document.getElementById('user-role').textContent=currentRole==='admin'?'Msimamizi':'Mfanyakazi';
-
-  const isWorkerAccount=currentRole==='worker'&&['NGOSHA','EMMANUEL','MICHAEL','HASSAN'].includes(currentUser.toUpperCase());
-  const adminTabs=[
-    {id:'checkin',icon:'ti-user-plus',label:'Usajili'},
-    {id:'lookup',icon:'ti-search',label:'Tafuta'},
-    {id:'dashboard',icon:'ti-layout-dashboard',label:'Dashibodi'},
-    {id:'report',icon:'ti-chart-bar',label:'Ripoti'},
-    {id:'database',icon:'ti-database',label:'Wateja Wote'},
-    {id:'reminders',icon:'ti-bell',label:'Ukumbusho'},
-    {id:'expenses',icon:'ti-receipt',label:'Matumizi'},
-    {id:'pos',icon:'ti-shopping-cart',label:'POS — Bidhaa'},
-    {id:'finance',icon:'ti-chart-pie',label:'Fedha & Faida'},
-  ];
-  const workerTabs=[
-    {id:'checkin',icon:'ti-user-plus',label:'Usajili'},
-    {id:'lookup',icon:'ti-search',label:'Tafuta'},
-    {id:'mytasks',icon:'ti-checklist',label:'Kazi Zangu',badge:true},
-    {id:'mytoday',icon:'ti-list',label:'Yangu Leo'},
-  ];
-  // Reorder so the HOME (Dashboard for admin, Yangu Leo for worker) is first
-  const homeTabId = currentRole==='admin' ? 'dashboard' : 'mytoday';
-  const tabs = (currentRole==='admin'?adminTabs:workerTabs).slice();
-  const homeIdx = tabs.findIndex(t=>t.id===homeTabId);
-  if(homeIdx>0){ const [h]=tabs.splice(homeIdx,1); tabs.unshift(h); }
-
-  const nav=document.getElementById('sidebar-nav');
-  const bn=document.getElementById('bn-scroll');
-  nav.innerHTML='<div class="nav-section">Menyu</div>';
-  bn.innerHTML='';
-  tabs.forEach((t,i)=>{
-    const isActive=i===0;
-    // Sidebar item
-    const d=document.createElement('div');
-    d.className='nav-item'+(isActive?' active':'');
-    d.id='nav-'+t.id;
-    d.innerHTML=`<i class="ti ${t.icon}"></i><span class="nav-label">${t.label}</span>${t.badge?'<span class="badge-count" id="tasks-badge" style="display:none;">0</span>':''}`;
-    d.addEventListener('click', function(){
-      showTab(t.id, d, t.label);
-      closeMobileSidebar();
-    });
-    nav.appendChild(d);
-
-    // Bottom nav item (mobile)
-    const b=document.createElement('div');
-    b.className='bn-item'+(isActive?' active':'');
-    b.id='bn-'+t.id;
-    b.innerHTML=`<i class="ti ${t.icon}"></i><span>${t.label}</span>${t.badge?'<span class="badge-count" id="tasks-badge-bn" style="display:none;">0</span>':''}`;
-    b.addEventListener('click', function(){ showTab(t.id, b, t.label); });
-    bn.appendChild(b);
-  });
-
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.getElementById('tab-'+homeTabId).classList.add('active');
-  document.getElementById('topbar-title').textContent=t(homeTabId)||tabs[0].label;
-  if(currentRole==='admin'){renderDashboard();renderWorkerPerf();}
-  else{renderMyTasks();renderMyToday();}
-}
 window.addEventListener('load',()=>{if(token&&currentRole)startApp();updateClock();setInterval(updateClock,1000);});
 
 // ── No plate toggle ───────────────────────────────────────────────────────
@@ -2228,40 +2390,6 @@ async function sendReminder(plate,channel,p){
 }
 
 // ── Tabs & Clock ──────────────────────────────────────────────────────────
-function showTab(name,el,label){
-  haptic();
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-item, .bn-item').forEach(b=>b.classList.remove('active'));
-  const navEl=document.getElementById('nav-'+name);
-  const bnEl=document.getElementById('bn-'+name);
-  if(navEl) navEl.classList.add('active');
-  if(bnEl) bnEl.classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
-  document.getElementById('topbar-title').textContent=label||name;
-  const mobTitle=document.getElementById('mob-page-title');
-  const mobSub=document.getElementById('mob-page-sub');
-  if(mobTitle) mobTitle.textContent=(label||name).toUpperCase();
-  if(mobSub) mobSub.textContent='Ngewa Car Wash';
-  if(name==='report')renderReport();
-  if(name==='database')renderDatabase();
-  if(name==='reminders')renderReminders();
-  if(name==='dashboard'){renderDashboard();renderWorkerPerf();}
-  if(name==='mytasks')renderMyTasks();
-  if(name==='mytoday')renderMyToday();
-  if(name==='expenses'){initExpensePage();setTimeout(()=>{},100);}
-  if(name==='pos'){loadPosItems();}
-  if(name==='finance'){renderFinance();}
-  if(name==='worker-detail'){renderWorkerDetail();}
-}
-function updateClock(){
-  const now=new Date();
-  const c=document.getElementById('live-clock');
-  const d=document.getElementById('live-date');
-  if(c)c.textContent=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  if(d)d.textContent=now.toLocaleDateString('sw-TZ',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-}
-
-
 // ══════════════════════════════════════════════════════════
 // EXPENSES
 // ══════════════════════════════════════════════════════════
@@ -2706,14 +2834,6 @@ function applyLangToForms() {
 // ════════════════════════════════════════════════════════════════
 // MOBILE SIDEBAR
 // ════════════════════════════════════════════════════════════════
-function openMobileSidebar() {
-  document.querySelector('.sidebar').classList.add('mobile-open');
-  document.getElementById('sidebar-overlay').classList.add('open');
-}
-function closeMobileSidebar() {
-  document.querySelector('.sidebar').classList.remove('mobile-open');
-  document.getElementById('sidebar-overlay').classList.remove('open');
-}
 // Close sidebar when nav item tapped on mobile
 const _origShowTab = showTab;
 
@@ -3257,100 +3377,230 @@ function toggleTheme() {
   }
 })();
 
-</script>
 
-<script>
-// Force light mode kwenye Samsung Internet
-(function() {
-  var html = document.documentElement;
-  html.style.setProperty('color-scheme', 'only light', 'important');
-  
-  // Detect forced dark mode na pinga
-  var bg = getComputedStyle(document.body).backgroundColor;
-  if (bg === 'rgb(0, 0, 0)' || bg === 'rgb(18, 18, 18)') {
-    document.body.classList.remove('dark');
-    document.body.style.setProperty('background', '#F5F7F6', 'important');
-    document.body.style.setProperty('color', '#0F1923', 'important');
-  }
-})();
 
-// PWA service worker registration
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+// ══ OVERRIDES & MOBILE ADDITIONS ═══════════════════════════════════
+
+// Patch startApp to build bottom nav + set home = dashboard/mytoday
+const _origStartApp = startApp;
+function startApp() {
+  // Call original first to set token/role/user info
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('app-page').style.display = 'block';
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('user-av').textContent = ini(currentUser);
+  document.getElementById('user-name').textContent = currentUser;
+  document.getElementById('user-role').textContent = currentRole === 'admin' ? 'Msimamizi' : 'Mfanyakazi';
+
+  const homeTabId = currentRole === 'admin' ? 'dashboard' : 'mytoday';
+
+  const adminTabs = [
+    {id:'dashboard', icon:'ti-layout-dashboard', label:'Dashibodi'},
+    {id:'checkin',   icon:'ti-user-plus',         label:'Usajili'},
+    {id:'lookup',    icon:'ti-search',             label:'Tafuta'},
+    {id:'report',    icon:'ti-chart-bar',          label:'Ripoti'},
+    {id:'database',  icon:'ti-database',           label:'Wateja'},
+    {id:'expenses',  icon:'ti-receipt',            label:'Matumizi'},
+    {id:'pos',       icon:'ti-shopping-cart',      label:'POS'},
+    {id:'finance',   icon:'ti-chart-pie',          label:'Fedha'},
+    {id:'reminders', icon:'ti-bell',               label:'Ukumbu'},
+  ];
+  const workerTabs = [
+    {id:'mytoday',  icon:'ti-list',        label:'Yangu Leo'},
+    {id:'mytasks',  icon:'ti-checklist',   label:'Kazi Zangu', badge:true},
+    {id:'checkin',  icon:'ti-user-plus',   label:'Usajili'},
+    {id:'lookup',   icon:'ti-search',      label:'Tafuta'},
+  ];
+
+  const tabs = currentRole === 'admin' ? adminTabs : workerTabs;
+
+  // Build sidebar nav
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '<div class="nav-section" style="font-size:9px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:1.8px;text-transform:uppercase;padding:8px 1.25rem 3px;">Menyu</div>';
+
+  // Build bottom nav
+  const bn = document.getElementById('bn-inner');
+  bn.innerHTML = '';
+
+  tabs.forEach((tab, i) => {
+    const isActive = tab.id === homeTabId;
+
+    // Sidebar item
+    const d = document.createElement('div');
+    d.className = 'nav-item' + (isActive ? ' active' : '');
+    d.id = 'nav-' + tab.id;
+    d.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 1.25rem;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);cursor:pointer;transition:all .18s;border-left:3px solid transparent;';
+    d.innerHTML = `<i class="ti ${tab.icon}" style="font-size:16px;opacity:.8;"></i><span class="nav-label">${tab.label}</span>`;
+    if(isActive) {
+      d.style.background = 'rgba(255,255,255,.13)';
+      d.style.borderLeftColor = '#A8D5C2';
+      d.style.color = '#fff';
+      d.style.fontWeight = '600';
+    }
+    d.addEventListener('click', () => {
+      haptic();
+      showTab(tab.id, tab.label);
+      closeMobileSidebar();
+    });
+    nav.appendChild(d);
+
+    // Bottom nav item
+    const b = document.createElement('button');
+    b.className = 'bn-item' + (isActive ? ' active' : '');
+    b.id = 'bn-' + tab.id;
+    b.innerHTML = `<i class="ti ${tab.icon}"></i><span>${tab.label}</span>` +
+      (tab.badge ? '<span class="bn-badge" id="bn-badge-tasks"></span>' : '');
+    b.addEventListener('click', () => {
+      haptic();
+      showTab(tab.id, tab.label);
+    });
+    bn.appendChild(b);
   });
+
+  // Activate home tab
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  const homeSection = document.getElementById('tab-' + homeTabId);
+  if(homeSection) homeSection.classList.add('active');
+  document.getElementById('topbar-title').textContent = tabs.find(t=>t.id===homeTabId)?.label || 'Dashibodi';
+  const mobTitle = document.getElementById('mob-page-title');
+  if(mobTitle) mobTitle.textContent = tabs.find(t=>t.id===homeTabId)?.label || 'Dashibodi';
+
+  if(currentRole === 'admin') { renderDashboard(); renderWorkerPerf(); }
+  else { renderMyTasks(); renderMyToday(); }
+
+  setTimeout(() => { applyLangToNav && applyLangToNav(); applyLangToForms && applyLangToForms(); }, 150);
+  showPWABannerIfNeeded();
 }
 
+// Override showTab to sync both navs
+function showTab(name, label) {
+  haptic();
+  // Deactivate all
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => {
+    b.style.background = '';
+    b.style.borderLeftColor = 'transparent';
+    b.style.color = 'rgba(255,255,255,.65)';
+    b.style.fontWeight = '500';
+    b.classList.remove('active');
+  });
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
 
-// ── Haptic feedback (Vibration API) ──────────────────────────────
-function haptic(ms){
-  try{ if(navigator.vibrate) navigator.vibrate(ms||8); }catch(e){}
+  // Activate selected
+  const section = document.getElementById('tab-' + name);
+  if(section) section.classList.add('active');
+
+  const navEl = document.getElementById('nav-' + name);
+  if(navEl) {
+    navEl.style.background = 'rgba(255,255,255,.13)';
+    navEl.style.borderLeftColor = '#A8D5C2';
+    navEl.style.color = '#fff';
+    navEl.style.fontWeight = '600';
+    navEl.classList.add('active');
+  }
+  const bnEl = document.getElementById('bn-' + name);
+  if(bnEl) bnEl.classList.add('active');
+
+  // Update titles
+  document.getElementById('topbar-title').textContent = label || name;
+  const mobTitle = document.getElementById('mob-page-title');
+  if(mobTitle) mobTitle.textContent = label || name;
+
+  // Load content
+  if(name==='report') renderReport();
+  else if(name==='database') renderDatabase();
+  else if(name==='reminders') renderReminders();
+  else if(name==='dashboard') { renderDashboard(); renderWorkerPerf(); }
+  else if(name==='mytasks') renderMyTasks();
+  else if(name==='mytoday') renderMyToday();
+  else if(name==='expenses') { initExpensePage && initExpensePage(); }
+  else if(name==='pos') { loadPosItems && loadPosItems(); }
+  else if(name==='finance') renderFinance && renderFinance();
+  else if(name==='worker-detail') renderWorkerDetail && renderWorkerDetail();
 }
 
+function openMobileSidebar() {
+  document.getElementById('main-sidebar').classList.add('mobile-open');
+  document.getElementById('sidebar-overlay').classList.add('open');
+}
+function closeMobileSidebar() {
+  document.getElementById('main-sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
 
-// ── Skeleton loader helper ────────────────────────────────────────
-function skeletonRows(n=4){
-  return Array.from({length:n},(_,i)=>`
+function haptic(ms) {
+  try { if(navigator.vibrate) navigator.vibrate(ms||8); } catch(e) {}
+}
+
+function skeletonRows(n) {
+  n = n||4;
+  return Array.from({length:n}, (_,i) => `
     <div class="skel-row">
       <div class="skeleton skel-avatar"></div>
       <div style="flex:1;">
-        <div class="skeleton skel-line" style="width:${60+i*7}%"></div>
+        <div class="skeleton skel-line" style="width:${60+i*7}%;margin-bottom:6px;"></div>
         <div class="skeleton skel-line" style="width:40%;height:9px;"></div>
       </div>
-      <div class="skeleton skel-line" style="width:70px;height:30px;border-radius:8px;"></div>
+      <div class="skeleton" style="width:70px;height:30px;border-radius:8px;"></div>
     </div>`).join('');
 }
 
-
-// ── FAB action ────────────────────────────────────────────────────
-function fabAction(){
+function fabAction() {
   haptic(12);
-  const bnCheckin = document.getElementById('bn-checkin');
-  const navCheckin = document.getElementById('nav-checkin');
-  showTab('checkin', bnCheckin||navCheckin||{classList:{add:()=>{},remove:()=>{}}}, t('checkin')||'Usajili');
+  showTab('checkin', 'Usajili');
+  closeMobileSidebar();
 }
 
+// Update task badge on both navs
+function updateTaskBadge(count) {
+  ['tasks-badge','tasks-badge-bn','bn-badge-tasks'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) { el.textContent = count; el.style.display = count > 0 ? 'flex' : 'none'; }
+  });
+}
 
-// ── PWA install prompt ────────────────────────────────────────────
+// PWA
 let pwaPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   pwaPrompt = e;
-  // Show banner only if not already installed and user is logged in
-  if(token && currentRole){
-    const banner = document.getElementById('pwa-banner');
-    if(banner && !localStorage.getItem('pwa_dismissed')){
-      banner.style.display = 'flex';
-    }
-  }
 });
-function installPWA(){
-  if(pwaPrompt){
-    pwaPrompt.prompt();
-    pwaPrompt.userChoice.then(r=>{
-      if(r.outcome==='accepted') hidePWABanner();
-      pwaPrompt=null;
-    });
-  } else {
-    // iOS fallback
-    alert('Bonyeza Share → "Add to Home Screen" kwenye Safari');
+function showPWABannerIfNeeded() {
+  if(pwaPrompt && !localStorage.getItem('pwa_dismissed')) {
+    setTimeout(() => {
+      const b = document.getElementById('pwa-banner');
+      if(b) b.style.display = 'flex';
+    }, 4000);
   }
 }
-function hidePWABanner(){
-  const b=document.getElementById('pwa-banner');
-  if(b) b.style.display='none';
+function installPWA() {
+  if(pwaPrompt) { pwaPrompt.prompt(); pwaPrompt.userChoice.then(r => { if(r.outcome==='accepted') hidePWABanner(); pwaPrompt=null; }); }
+  else { alert('Kwenye Safari: bonyeza Share \u2192 "Add to Home Screen"'); }
+}
+function hidePWABanner() {
+  document.getElementById('pwa-banner').style.display = 'none';
   localStorage.setItem('pwa_dismissed','1');
 }
-// Show banner after login
-function showPWABannerIfNeeded(){
-  if(pwaPrompt && !localStorage.getItem('pwa_dismissed')){
-    setTimeout(()=>{
-      const b=document.getElementById('pwa-banner');
-      if(b) b.style.display='flex';
-    }, 3000);
-  }
+
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(()=>{}); });
 }
 
+function updateClock() {
+  const now = new Date();
+  const c = document.getElementById('live-clock');
+  const d = document.getElementById('live-date');
+  if(c) c.textContent = now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  if(d) d.textContent = now.toLocaleDateString('sw-TZ',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+}
+updateClock(); setInterval(updateClock, 1000);
+
+window.addEventListener('load', () => {
+  const savedLang = localStorage.getItem('ncw_lang');
+  if(savedLang) currentLang = savedLang;
+  if(token && currentRole) startApp();
+  updateClock();
+});
 </script>
 </body>
 </html>
