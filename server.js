@@ -8,21 +8,32 @@ const admin = require('firebase-admin');
 const AfricasTalking = require('africastalking');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
+const helmet = require('helmet');
+const bcrypt = require('bcryptjs');
+
+// ─── Fail fast on missing critical secrets (no guessable fallbacks) ───────────
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET is not set. Refusing to start with a guessable token secret.');
+  process.exit(1);
+}
+if (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === 'admin') {
+  console.warn('WARNING: ADMIN_PASSWORD is unset or set to "admin" — change it before production use.');
+}
 
 const app = express();
 
-app.use(cors());
+// CORS: the frontend is served by this same server, so cross-origin API access
+// is not needed by default. Set CORS_ORIGIN (comma-separated) to allow specific origins.
+app.use(cors(process.env.CORS_ORIGIN
+  ? { origin: process.env.CORS_ORIGIN.split(',').map(s => s.trim()) }
+  : { origin: false }));
 app.use(express.json({ limit: '10mb' }));
 
-// Security headers — helps with WiFi blocking + browser security
-app.use((req, res, next) => {
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Referrer-Policy', 'no-referrer');
-  res.setHeader('Permissions-Policy', 'camera=*');
-  next();
-});
+// Security headers via helmet. CSP is disabled because the UI relies on inline
+// scripts/styles + CDN assets; stored-XSS is mitigated by escaping in the client.
+app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
+// helmet doesn't set Permissions-Policy — keep camera enabled for plate OCR.
+app.use((req, res, next) => { res.setHeader('Permissions-Policy', 'camera=*'); next(); });
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -126,12 +137,17 @@ const USERS = {
   'MICHAEL':  { password: process.env.MICHAEL_PASS||'michael123',   role: 'worker' },
   'HASSAN':   { password: process.env.HASSAN_PASS||'hassan123',     role: 'worker' },
 };
+// Hash passwords once at boot so plaintext isn't held for comparison, and logins
+// use a constant-time bcrypt compare (mitigates timing attacks). A dummy hash is
+// compared when the user is unknown so response time doesn't reveal valid usernames.
+for (const u of Object.values(USERS)) { u.hash = bcrypt.hashSync(u.password, 10); delete u.password; }
+const DUMMY_HASH = bcrypt.hashSync('invalid-password-placeholder', 10);
 
 function authMiddleware(req, res, next) {
   const header = req.headers['authorization'];
   if (!header) return res.status(401).json({ error: 'No token' });
   const token = header.split(' ')[1];
-  try { req.user = jwt.verify(token, process.env.JWT_SECRET || 'ngewa_secret'); next(); }
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); next(); }
   catch { res.status(401).json({ error: 'Invalid token' }); }
 }
 function adminOnly(req, res, next) {
@@ -142,12 +158,16 @@ function adminOnly(req, res, next) {
 // ─── Login ───────────────────────────────────────────────────────────────────
 app.post('/api/login', loginLimiter, async (req, res) => {
   const { username, password } = req.body;
+  if (typeof username !== 'string' || typeof password !== 'string')
+    return res.status(400).json({ error: 'Jina la mtumiaji na neno la siri vinahitajika.' });
   // Try uppercase first (for workers), then as-is (for admin)
   const user = USERS[username.toUpperCase()] || USERS[username];
   const resolvedUsername = USERS[username.toUpperCase()] ? username.toUpperCase() : username;
-  if (!user || user.password !== password)
+  // Always run a compare (dummy hash when user is unknown) to avoid timing leaks.
+  const ok = await bcrypt.compare(password, user ? user.hash : DUMMY_HASH);
+  if (!user || !ok)
     return res.status(401).json({ error: 'Jina la mtumiaji au neno la siri si sahihi.' });
-  const token = jwt.sign({ username: resolvedUsername, role: user.role }, process.env.JWT_SECRET || 'ngewa_secret', { expiresIn: '12h' });
+  const token = jwt.sign({ username: resolvedUsername, role: user.role }, process.env.JWT_SECRET, { expiresIn: '12h' });
   res.json({ token, role: user.role, username: resolvedUsername });
 });
 
@@ -393,7 +413,9 @@ app.post('/api/visits/:id/revoke', authMiddleware, adminOnly, async (req, res) =
 // ─── Visits ──────────────────────────────────────────────────────────────────
 app.get('/api/visits', authMiddleware, async (req, res) => {
   try {
-    const snap = await db.collection('visits').orderBy('time', 'desc').limit(500).get();
+    // ?all=1 → no cap (used by finance totals). Default keeps the recent feed light.
+    const base = db.collection('visits').orderBy('time', 'desc');
+    const snap = await (req.query.all ? base.get() : base.limit(500).get());
     res.json(snap.docs.map(d => ({ id: d.id, ...d.data() })));
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -496,24 +518,31 @@ app.get('/api/worker-orders/:workerName', authMiddleware, adminOnly, async (req,
 
 app.get('/api/stats', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const [custSnap, visitSnap] = await Promise.all([
+    const [custSnap, visitSnap, posSnap] = await Promise.all([
       db.collection('customers').get(),
-      db.collection('visits').orderBy('time', 'desc').limit(500).get(),
+      db.collection('visits').orderBy('time', 'desc').get(),   // uncapped: total must be accurate
+      db.collection('pos_sales').get(),
     ]);
     const visits = visitSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const posSales = posSnap.docs.map(d => d.data());
     const todayStr = new Date().toDateString();
     const todayVisits = visits.filter(v => new Date(v.time).toDateString() === todayStr);
-    const todayRevenue = todayVisits.reduce((s, v) => s + (parseFloat(v.amount) || 0), 0);
-    const totalRevenue = visits.reduce((s, v) => s + (parseFloat(v.amount) || 0), 0);
+    // Revenue = APPROVED washes + POS sales (POS has no approval step).
+    const amt = v => (v.approved ? parseFloat(v.amount) || 0 : 0);
+    const todayPos = posSales.filter(p => new Date(p.createdAt).toDateString() === todayStr)
+      .reduce((s, p) => s + (parseFloat(p.total) || 0), 0);
+    const totalPos = posSales.reduce((s, p) => s + (parseFloat(p.total) || 0), 0);
+    const todayRevenue = todayVisits.reduce((s, v) => s + amt(v), 0) + todayPos;
+    const totalRevenue = visits.reduce((s, v) => s + amt(v), 0) + totalPos;
 
-    // Per-worker stats for today
+    // Per-worker stats for today (approved washes only)
     const workerStats = {};
     WORKERS_LIST.forEach(w => { workerStats[w] = { visits: 0, revenue: 0, approved: 0 }; });
     todayVisits.forEach(v => {
       const w = (v.assignedWorker || '').toUpperCase();
       if (workerStats[w]) {
         workerStats[w].visits++;
-        workerStats[w].revenue += parseFloat(v.amount) || 0;
+        workerStats[w].revenue += amt(v);
         if (v.approved) workerStats[w].approved++;
       }
     });
@@ -561,7 +590,9 @@ app.post('/api/expenses', authMiddleware, adminOnly, async (req, res) => {
 // ─── Get Expenses ─────────────────────────────────────────────────────────
 app.get('/api/expenses', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const snap = await db.collection('expenses').orderBy('createdAt', 'desc').limit(500).get();
+    // ?all=1 → no cap (used by finance totals).
+    const base = db.collection('expenses').orderBy('createdAt', 'desc');
+    const snap = await (req.query.all ? base.get() : base.limit(500).get());
     res.json(snap.docs.map(d => ({ id: d.id, ...d.data() })));
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -623,47 +654,73 @@ app.get('/api/pos/items', authMiddleware, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ─── Low-stock items (stockQty at or below the item's alert threshold) ────────
+app.get('/api/pos/low-stock', authMiddleware, async (req, res) => {
+  try {
+    const snap = await db.collection('pos_items').where('active', '==', true).get();
+    const low = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .filter(i => (parseFloat(i.stockQty) || 0) <= (parseFloat(i.lowStockAlert) || 0))
+      .sort((a, b) => (parseFloat(a.stockQty) || 0) - (parseFloat(b.stockQty) || 0));
+    res.json(low);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // ─── POS Sale (checkout) ──────────────────────────────────────────────────
 app.post('/api/pos/sales', authMiddleware, async (req, res) => {
   try {
     const { items, note } = req.body;
-    // items = [{ itemId, name, qty, unitPrice }]
-    if (!items || !items.length) return res.status(400).json({ error: 'Hakuna bidhaa zilizochaguliwa.' });
-    const total = items.reduce((s, i) => s + (i.qty * i.unitPrice), 0);
-    const saleRef = await db.collection('pos_sales').add({
-      items, total, note: note || '',
-      soldBy: req.user.username,
-      createdAt: new Date().toISOString(),
-    });
-    // Deduct stock
-    const batch = db.batch();
-    for (const item of items) {
-      const itemRef = db.collection('pos_items').doc(item.itemId);
-      const snap = await itemRef.get();
-      if (snap.exists) {
-        const current = snap.data().stockQty || 0;
-        batch.update(itemRef, { stockQty: Math.max(0, current - item.qty) });
+    // items = [{ itemId, qty }] — name/price are taken from the catalog server-side.
+    if (!Array.isArray(items) || !items.length)
+      return res.status(400).json({ error: 'Hakuna bidhaa zilizochaguliwa.' });
+
+    const saleRef = db.collection('pos_sales').doc();
+    // Transaction: read all stock, compute total from trusted server prices, then
+    // deduct + record atomically. Fixes the read-then-write race where two
+    // concurrent sales could oversell the same stock.
+    const result = await db.runTransaction(async (t) => {
+      const refs = items.map(i => db.collection('pos_items').doc(i.itemId));
+      const snaps = await Promise.all(refs.map(r => t.get(r)));   // all reads before any write
+
+      let total = 0;
+      const lineItems = [];
+      const newQtys = [];
+      const lowStock = [];
+      for (let k = 0; k < items.length; k++) {
+        const snap = snaps[k];
+        const qty = parseFloat(items[k].qty) || 0;
+        if (qty <= 0) throw new Error('Idadi ya bidhaa si sahihi.');
+        if (!snap.exists) throw new Error('Bidhaa haipo kwenye orodha.');
+        const d = snap.data();
+        const unitPrice = parseFloat(d.unitPrice) || 0;          // trust catalog price, not client
+        const current = parseFloat(d.stockQty) || 0;
+        const newQty = Math.max(0, current - qty);               // floor at 0 (oversell allowed but flagged)
+        total += qty * unitPrice;
+        lineItems.push({ itemId: items[k].itemId, name: d.name, qty, unitPrice });
+        newQtys.push(newQty);
+        if (newQty <= (parseFloat(d.lowStockAlert) || 0))
+          lowStock.push({ name: d.name, stockQty: newQty, lowStockAlert: parseFloat(d.lowStockAlert) || 0 });
       }
-    }
-    await batch.commit();
-    // Also record as accessories expense
-    await db.collection('expenses').add({
-      category: 'accessories',
-      description: 'POS Sale — ' + items.map(i => `${i.name} x${i.qty}`).join(', '),
-      amount: total,
-      date: new Date().toISOString(),
-      recordedBy: req.user.username,
-      createdAt: new Date().toISOString(),
-      posRefId: saleRef.id,
+      refs.forEach((ref, k) => t.update(ref, { stockQty: newQtys[k] }));
+      t.set(saleRef, {
+        items: lineItems, total, note: note || '',
+        soldBy: req.user.username,
+        createdAt: new Date().toISOString(),
+      });
+      return { total, lowStock };
     });
-    res.json({ success: true, id: saleRef.id, total });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+
+    // NOTE: A POS sale is REVENUE, not an expense — stored only in pos_sales and
+    // counted as income by the finance view. lowStock lets the UI warn the seller.
+    res.json({ success: true, id: saleRef.id, total: result.total, lowStock: result.lowStock });
+  } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
 // ─── POS Sales history ────────────────────────────────────────────────────
 app.get('/api/pos/sales', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const snap = await db.collection('pos_sales').orderBy('createdAt', 'desc').limit(200).get();
+    // ?all=1 → no cap (used by finance totals).
+    const base = db.collection('pos_sales').orderBy('createdAt', 'desc');
+    const snap = await (req.query.all ? base.get() : base.limit(200).get());
     res.json(snap.docs.map(d => ({ id: d.id, ...d.data() })));
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -671,17 +728,26 @@ app.get('/api/pos/sales', authMiddleware, adminOnly, async (req, res) => {
 // ─── Finance summary (admin) ──────────────────────────────────────────────
 app.get('/api/finance/summary', authMiddleware, adminOnly, async (req, res) => {
   try {
-    const [visitSnap, expenseSnap] = await Promise.all([
-      db.collection('visits').orderBy('time', 'desc').limit(500).get(),
+    const [visitSnap, expenseSnap, posSnap] = await Promise.all([
+      db.collection('visits').get(),
       db.collection('expenses').get(),
+      db.collection('pos_sales').get(),
     ]);
     const visits = visitSnap.docs.map(d => d.data());
     const expenses = expenseSnap.docs.map(d => d.data());
+    const posSales = posSnap.docs.map(d => d.data());
     const todayStr = new Date().toDateString();
 
-    const totalRevenue = visits.reduce((s, v) => s + (parseFloat(v.amount) || 0), 0);
-    const todayRevenue = visits.filter(v => new Date(v.time).toDateString() === todayStr)
-      .reduce((s, v) => s + (parseFloat(v.amount) || 0), 0);
+    // Revenue = APPROVED car-wash visits + POS accessory sales (POS has no approval).
+    const amt = v => (v.approved ? parseFloat(v.amount) || 0 : 0);
+    const washRevenue = visits.reduce((s, v) => s + amt(v), 0);
+    const posRevenue = posSales.reduce((s, p) => s + (parseFloat(p.total) || 0), 0);
+    const totalRevenue = washRevenue + posRevenue;
+    const todayRevenue =
+      visits.filter(v => new Date(v.time).toDateString() === todayStr)
+        .reduce((s, v) => s + amt(v), 0) +
+      posSales.filter(p => new Date(p.createdAt).toDateString() === todayStr)
+        .reduce((s, p) => s + (parseFloat(p.total) || 0), 0);
     const totalExpenses = expenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
     const todayExpenses = expenses.filter(e => new Date(e.date || e.createdAt).toDateString() === todayStr)
       .reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
@@ -695,6 +761,7 @@ app.get('/api/finance/summary', authMiddleware, adminOnly, async (req, res) => {
 
     res.json({
       totalRevenue, todayRevenue,
+      washRevenue, posRevenue,
       totalExpenses, todayExpenses,
       netProfit: totalRevenue - totalExpenses,
       todayProfit: todayRevenue - todayExpenses,

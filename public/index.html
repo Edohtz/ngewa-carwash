@@ -10,6 +10,8 @@
 <meta name="apple-mobile-web-app-title" content="Ngewa"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <link rel="manifest" href="/manifest.webmanifest"/>
+<link rel="icon" type="image/png" href="/icon.png"/>
+<link rel="apple-touch-icon" href="/icon.png"/>
 <title>Ngewa Car Wash</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -1830,6 +1832,9 @@ let allVisitsCache=[],allCustomersCache=[],currentFilter='today',searchTimeout=n
 let scanStreams={};
 
 // ── Helpers ──────────────────────────────────────────────────────────────
+// Escape user-supplied text before injecting into innerHTML (prevents stored XSS:
+// e.g. a customer name typed at check-in cannot run script in the admin dashboard).
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function ini(n){return(n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
 function fmtTime(iso){return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
 function fmtDate(iso){return new Date(iso).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
@@ -1986,10 +1991,10 @@ function smartSearch(){
       const results=await api('/api/search?q='+encodeURIComponent(q));
       if(!results.length){sr.style.display='none';return;}
       sr.style.display='flex';
-      sr.innerHTML=results.map(c=>`<div class="search-item" onclick="selectCustomer('${c.plate}')">
-        <strong>${c.name||'—'}</strong> &nbsp;
-        <span style="font-size:11px;background:var(--green-pale);color:var(--green);padding:1px 7px;border-radius:10px;font-weight:700;">${c.plate}</span>
-        &nbsp;·&nbsp; ${c.phone||'—'} &nbsp;·&nbsp; <span style="font-size:11px;color:var(--ink-faint);">${c.type}</span>
+      sr.innerHTML=results.map(c=>`<div class="search-item" onclick="selectCustomer('${esc(c.plate)}')">
+        <strong>${esc(c.name||'—')}</strong> &nbsp;
+        <span style="font-size:11px;background:var(--green-pale);color:var(--green);padding:1px 7px;border-radius:10px;font-weight:700;">${esc(c.plate)}</span>
+        &nbsp;·&nbsp; ${esc(c.phone||'—')} &nbsp;·&nbsp; <span style="font-size:11px;color:var(--ink-faint);">${c.type}</span>
       </div>`).join('');
     }catch(e){}
   },280);
@@ -2014,19 +2019,19 @@ async function lookupPlate(){
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
         <div class="avatar" style="width:46px;height:46px;font-size:14px;">${ini(c.name||'?')}</div>
         <div>
-          <div class="cust-name" style="font-size:15px;">${c.name||'Hakuna jina'}</div>
+          <div class="cust-name" style="font-size:15px;">${esc(c.name||'Hakuna jina')}</div>
           <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;">
-            <span style="font-size:11px;background:var(--green-pale);color:var(--green);padding:2px 9px;border-radius:10px;font-weight:700;border:1px solid var(--green-border);">${c.plate}</span>
+            <span style="font-size:11px;background:var(--green-pale);color:var(--green);padding:2px 9px;border-radius:10px;font-weight:700;border:1px solid var(--green-border);">${esc(c.plate)}</span>
             ${noBadge}
           </div>
         </div>
         <span class="pill p-return" style="margin-left:auto;">Kawaida</span>
       </div>
       <table style="width:100%;font-size:13px;border-collapse:collapse;">
-        <tr><td style="color:var(--ink-soft);padding:5px 0;width:130px;font-weight:500;"><i class="ti ti-phone" style="vertical-align:-2px;margin-right:5px;"></i>Simu</td><td style="font-weight:600;">${c.phone||'—'}</td></tr>
-        ${c.email?`<tr><td style="color:var(--ink-soft);padding:5px 0;font-weight:500;"><i class="ti ti-mail" style="vertical-align:-2px;margin-right:5px;"></i>Barua pepe</td><td style="font-weight:600;">${c.email}</td></tr>`:''}
+        <tr><td style="color:var(--ink-soft);padding:5px 0;width:130px;font-weight:500;"><i class="ti ti-phone" style="vertical-align:-2px;margin-right:5px;"></i>Simu</td><td style="font-weight:600;">${esc(c.phone||'—')}</td></tr>
+        ${c.email?`<tr><td style="color:var(--ink-soft);padding:5px 0;font-weight:500;"><i class="ti ti-mail" style="vertical-align:-2px;margin-right:5px;"></i>Barua pepe</td><td style="font-weight:600;">${esc(c.email)}</td></tr>`:''}
         <tr><td style="color:var(--ink-soft);padding:5px 0;font-weight:500;"><i class="ti ti-car" style="vertical-align:-2px;margin-right:5px;"></i>Chombo</td><td>${vtypePill(c.type)}</td></tr>
-        <tr><td style="color:var(--ink-soft);padding:5px 0;font-weight:500;"><i class="ti ti-wash" style="vertical-align:-2px;margin-right:5px;"></i>Huduma ya Mwisho</td><td style="font-weight:600;">${c.lastService||'—'}</td></tr>
+        <tr><td style="color:var(--ink-soft);padding:5px 0;font-weight:500;"><i class="ti ti-wash" style="vertical-align:-2px;margin-right:5px;"></i>Huduma ya Mwisho</td><td style="font-weight:600;">${esc(c.lastService||'—')}</td></tr>
         <tr><td style="color:var(--ink-soft);padding:5px 0;font-weight:500;"><i class="ti ti-calendar" style="vertical-align:-2px;margin-right:5px;"></i>Ziara ya Mwisho</td><td style="font-weight:600;">${fmtDate(c.lastVisit)}</td></tr>
         <tr><td style="color:var(--ink-soft);padding:5px 0;font-weight:500;"><i class="ti ti-repeat" style="vertical-align:-2px;margin-right:5px;"></i>Jumla ya Ziara</td><td style="font-weight:600;">${c.visits} ziara</td></tr>
         <tr><td style="color:var(--ink-soft);padding:5px 0;font-weight:500;"><i class="ti ti-send" style="vertical-align:-2px;margin-right:5px;"></i>Mawasiliano</td><td>${channels}</td></tr>
@@ -2042,7 +2047,7 @@ async function lookupPlate(){
         <option value="">— Chagua mfanyakazi —</option>
         <option>NGOSHA</option><option>EMMANUEL</option><option>MICHAEL</option><option>HASSAN</option>
       </select>
-      <button class="btn btn-primary btn-full" id="returning-btn" onclick="checkInReturning('${c.plate}')"><i class="ti ti-check"></i> Sajili kwa Leo</button>`;
+      <button class="btn btn-primary btn-full" id="returning-btn" onclick="checkInReturning('${esc(c.plate)}')"><i class="ti ti-check"></i> Sajili kwa Leo</button>`;
   }catch(err){
     res.innerHTML=`<div class="empty"><i class="ti ti-circle-off"></i>Hakuna rekodi kwa <strong>${q}</strong>.<br>Nenda kwenye Usajili kumwandikisha.</div>`;
   }
@@ -2101,8 +2106,8 @@ async function renderMyTasks(){
           <div class="approval-header">
             <div class="avatar">${ini(v.name||'?')}</div>
             <div style="flex:1;min-width:0;">
-              <div class="cust-name">${v.name||'Hakuna jina'}</div>
-              <div class="cust-meta">${v.plate} · ${v.service}</div>
+              <div class="cust-name">${esc(v.name||'Hakuna jina')}</div>
+              <div class="cust-meta">${esc(v.plate)} · ${esc(v.service)}</div>
             </div>
             <span class="pill p-pending">Inasubiri</span>
           </div>
@@ -2124,8 +2129,8 @@ async function renderMyTasks(){
           <div class="approval-header">
             <div class="avatar" style="background:var(--green);color:#fff;">${ini(v.name||'?')}</div>
             <div style="flex:1;min-width:0;">
-              <div class="cust-name">${v.name||'Hakuna jina'}</div>
-              <div class="cust-meta">${v.plate} · ${v.service}</div>
+              <div class="cust-name">${esc(v.name||'Hakuna jina')}</div>
+              <div class="cust-meta">${esc(v.plate)} · ${esc(v.service)}</div>
             </div>
             <span class="pill p-approved"><i class="ti ti-check"></i> Imekamilika</span>
           </div>
@@ -2180,10 +2185,10 @@ async function renderDashboard(){
     rl.innerHTML='<div class="cust-list">'+recent.map(v=>`<div class="cust-row">
       <div class="avatar">${ini(v.name||'?')}</div>
       <div style="flex:1;min-width:0;">
-        <div class="cust-name">${v.name||'Hakuna jina'}</div>
-        <div class="cust-meta">${v.plate} · ${v.service} · na <strong>${v.recordedBy||'—'}</strong></div>
+        <div class="cust-name">${esc(v.name||'Hakuna jina')}</div>
+        <div class="cust-meta">${esc(v.plate)} · ${esc(v.service)} · na <strong>${esc(v.recordedBy||'—')}</strong></div>
         <div style="margin-top:3px;display:flex;gap:4px;flex-wrap:wrap;">
-          ${v.assignedWorker?`<span class="worker-tag"><i class="ti ti-user-cog"></i> ${v.assignedWorker}</span>`:''}
+          ${v.assignedWorker?`<span class="worker-tag"><i class="ti ti-user-cog"></i> ${esc(v.assignedWorker)}</span>`:''}
           ${v.approved?'<span class="pill p-approved"><i class="ti ti-check"></i> Imekamilika</span>':'<span class="pill p-pending">Inasubiri</span>'}
         </div>
       </div>
@@ -2242,11 +2247,11 @@ async function renderReport(){
           <div style="font-size:11px;color:var(--ink-faint);width:18px;text-align:center;">${i+1}</div>
           <div class="avatar">${ini(v.name||'?')}</div>
           <div style="flex:1;min-width:0;">
-            <div class="cust-name">${v.name||'Hakuna jina'}</div>
-            <div class="cust-meta">${v.plate} · ${v.service}</div>
+            <div class="cust-name">${esc(v.name||'Hakuna jina')}</div>
+            <div class="cust-meta">${esc(v.plate)} · ${esc(v.service)}</div>
             <div style="margin-top:3px;display:flex;gap:4px;flex-wrap:wrap;">
               ${vtypePill(v.type)}
-              ${v.assignedWorker?`<span class="worker-tag"><i class="ti ti-user-cog"></i> ${v.assignedWorker}</span>`:''}
+              ${v.assignedWorker?`<span class="worker-tag"><i class="ti ti-user-cog"></i> ${esc(v.assignedWorker)}</span>`:''}
               ${v.approved?'<span class="pill p-approved"><i class="ti ti-check"></i> Imekamilika</span>':'<span class="pill p-pending">Inasubiri</span>'}
             </div>
           </div>
@@ -2278,10 +2283,10 @@ function filterDatabase(){
     filtered.map(c=>`<div class="cust-row">
       <div class="avatar">${ini(c.name||'?')}</div>
       <div style="flex:1;min-width:0;">
-        <div class="cust-name">${c.name||'Hakuna jina'}</div>
-        <div class="cust-meta">${c.phone||'—'}${c.email?' · '+c.email:''}</div>
+        <div class="cust-name">${esc(c.name||'Hakuna jina')}</div>
+        <div class="cust-meta">${esc(c.phone||'—')}${c.email?' · '+c.email:''}</div>
         <div style="margin-top:3px;display:flex;gap:4px;flex-wrap:wrap;">
-          <span style="font-size:10px;background:var(--green-pale);color:var(--green);padding:1px 7px;border-radius:10px;font-weight:700;border:1px solid var(--green-border);">${c.plate}</span>
+          <span style="font-size:10px;background:var(--green-pale);color:var(--green);padding:1px 7px;border-radius:10px;font-weight:700;border:1px solid var(--green-border);">${esc(c.plate)}</span>
           ${vtypePill(c.type)}
           ${c.isNoPlate?'<span class="pill p-noplate"><i class="ti ti-bolt"></i> Hakina namba</span>':''}
         </div>
@@ -2289,7 +2294,7 @@ function filterDatabase(){
       <div style="text-align:right;flex-shrink:0;">
         <div style="font-size:12px;font-weight:700;">${c.visits} ziara</div>
         <div style="font-size:11px;color:var(--ink-faint);">Mwisho: ${fmtDate(c.lastVisit)}</div>
-        <button class="btn btn-outline btn-sm" style="margin-top:5px;" onclick="openEditModal('${c.plate}')">
+        <button class="btn btn-outline btn-sm" style="margin-top:5px;" onclick="openEditModal('${esc(c.plate)}')">
           <i class="ti ti-edit"></i> Hariri
         </button>
       </div>
@@ -2360,21 +2365,21 @@ async function renderReminders(){
       return`<div class="remind-row" id="rrow-${p}">
         <div class="avatar" style="width:34px;height:34px;font-size:11px;flex-shrink:0;">${ini(c.name||'?')}</div>
         <div style="flex:1;min-width:0;">
-          <div class="cust-name">${c.name||'Hakuna jina'}</div>
-          <div class="cust-meta">${c.phone||'—'}${hasEmail?' · '+c.email:''}</div>
+          <div class="cust-name">${esc(c.name||'Hakuna jina')}</div>
+          <div class="cust-meta">${esc(c.phone||'—')}${hasEmail?' · '+c.email:''}</div>
           <div style="margin-top:3px;display:flex;gap:4px;flex-wrap:wrap;">
-            <span style="font-size:10px;background:var(--green-pale);color:var(--green);padding:1px 7px;border-radius:10px;font-weight:700;border:1px solid var(--green-border);">${c.plate}</span>
+            <span style="font-size:10px;background:var(--green-pale);color:var(--green);padding:1px 7px;border-radius:10px;font-weight:700;border:1px solid var(--green-border);">${esc(c.plate)}</span>
             ${vtypePill(c.type)}
           </div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
           <span id="rstatus-${p}" class="pill p-due">${d} siku zilizopita</span>
           <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;">
-            <button class="btn btn-outline btn-sm" id="rbtn-sms-${p}" onclick="sendReminder('${c.plate}','sms','${p}')"><i class="ti ti-device-mobile"></i> SMS</button>
-            ${hasEmail?`<button class="btn btn-outline btn-sm" id="rbtn-email-${p}" onclick="sendReminder('${c.plate}','email','${p}')"><i class="ti ti-mail"></i> Email</button>`:''}
-            ${hasEmail?`<button class="btn btn-primary btn-sm" id="rbtn-both-${p}" onclick="sendReminder('${c.plate}','both','${p}')"><i class="ti ti-send"></i> Vyote</button>`:''}
+            <button class="btn btn-outline btn-sm" id="rbtn-sms-${p}" onclick="sendReminder('${esc(c.plate)}','sms','${p}')"><i class="ti ti-device-mobile"></i> SMS</button>
+            ${hasEmail?`<button class="btn btn-outline btn-sm" id="rbtn-email-${p}" onclick="sendReminder('${esc(c.plate)}','email','${p}')"><i class="ti ti-mail"></i> Email</button>`:''}
+            ${hasEmail?`<button class="btn btn-primary btn-sm" id="rbtn-both-${p}" onclick="sendReminder('${esc(c.plate)}','both','${p}')"><i class="ti ti-send"></i> Vyote</button>`:''}
           </div>
-          ${currentRole==='admin'?`<button class="btn btn-danger btn-sm" onclick="revokeApproval('${c.plate}')" style="display:none;" id="revoke-${p}"><i class="ti ti-rotate-clockwise"></i> Revoke (Admin)</button>`:''}
+          ${currentRole==='admin'?`<button class="btn btn-danger btn-sm" onclick="revokeApproval('${esc(c.plate)}')" style="display:none;" id="revoke-${p}"><i class="ti ti-rotate-clockwise"></i> Revoke (Admin)</button>`:''}
         </div>
       </div>`;
     }).join('');
@@ -2486,7 +2491,7 @@ async function renderExpenseList() {
         <div style="flex:1;min-width:0;">
           <div style="font-size:13px;font-weight:600;">${m.label}</div>
           <div style="font-size:11px;color:var(--ink-faint);">${e.description || '—'}</div>
-          <div style="font-size:11px;color:var(--ink-faint);">${fmtDate(e.date || e.createdAt)} · na ${e.recordedBy||'—'}</div>
+          <div style="font-size:11px;color:var(--ink-faint);">${fmtDate(e.date || e.createdAt)} · na ${esc(e.recordedBy||'—')}</div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <div style="font-size:14px;font-weight:800;color:var(--red);">TZS ${parseFloat(e.amount).toLocaleString()}</div>
@@ -2539,7 +2544,7 @@ function renderPosGrid(items) {
     const pct = Math.min(100, Math.round((item.stockQty / Math.max(item.stockQty, item.lowStockAlert * 3)) * 100));
     return `<div class="pos-item-card ${inCart ? 'in-cart' : ''}" id="pic-${item.id}" onclick="addToCart('${item.id}')">
       ${inCart ? `<div class="pos-badge" style="display:flex;">${inCart.qty}</div>` : ''}
-      <div class="pos-item-name">${item.name}</div>
+      <div class="pos-item-name">${esc(item.name)}</div>
       <div class="pos-item-price">TZS ${parseFloat(item.unitPrice).toLocaleString()}</div>
       <div class="pos-item-stock ${isLow ? 'low' : ''}">Hisa: ${item.stockQty} ${item.unit} ${isLow ? '<span class="low-stock-badge"><i class="ti ti-alert-triangle"></i> Chini</span>' : ''}</div>
       <div class="progress-bar" style="margin-top:6px;"><div class="progress-fill ${isLow?'low':''}" style="width:${pct}%;"></div></div>
@@ -2631,9 +2636,13 @@ async function checkout() {
   try {
     const data = await api('/api/pos/sales', 'POST', { items, note });
     const total = data.total;
-    // Show receipt popup
+    // Show receipt popup (server total is authoritative)
         const lines = items.map(i => i.name + ' x' + i.qty + ' = TZS ' + (i.qty * i.unitPrice).toLocaleString()).join('\n');
-    const receipt = '✅ Mauzo yamekamilika!\n\n' + lines + '\n\nJumla: TZS ' + total.toLocaleString();
+    let receipt = '✅ Mauzo yamekamilika!\n\n' + lines + '\n\nJumla: TZS ' + total.toLocaleString();
+    if (data.lowStock && data.lowStock.length) {
+      receipt += '\n\n⚠️ Hisa chini ya kiwango:\n' +
+        data.lowStock.map(s => `${s.name}: zimebaki ${s.stockQty}`).join('\n');
+    }
     alert(receipt);
     clearCart();
     await loadPosItems();
@@ -2656,7 +2665,7 @@ async function renderInventory() {
       return `<div class="cust-row" style="${isLow?'border-color:var(--red-border);':''}">
         <div class="avatar" style="${isLow?'background:var(--red-pale);color:var(--red);':''}"><i class="ti ti-package"></i></div>
         <div style="flex:1;min-width:0;">
-          <div class="cust-name">${item.name}</div>
+          <div class="cust-name">${esc(item.name)}</div>
           <div class="cust-meta">Bei: TZS ${parseFloat(item.unitPrice).toLocaleString()} / ${item.unit}</div>
           <div style="margin-top:5px;max-width:160px;">
             <div style="font-size:10px;color:${isLow?'var(--red)':'var(--ink-faint)'};font-weight:600;margin-bottom:2px;">Hisa: ${item.stockQty} ${item.unit} ${isLow?'⚠️ Chini':''}</div>
@@ -2890,8 +2899,8 @@ async function renderMyToday() {
         <div style="font-size:11px;color:var(--ink-faint);width:18px;text-align:center;">${i+1}</div>
         <div class="avatar" style="${v.approved?'background:var(--green);color:#fff;':''}">${ini(v.name||'?')}</div>
         <div style="flex:1;min-width:0;">
-          <div class="cust-name">${v.name||'Hakuna jina'}</div>
-          <div class="cust-meta">${v.plate} · ${v.service}</div>
+          <div class="cust-name">${esc(v.name||'Hakuna jina')}</div>
+          <div class="cust-meta">${esc(v.plate)} · ${esc(v.service)}</div>
           <div style="margin-top:3px;display:flex;gap:4px;flex-wrap:wrap;">
             ${vtypePill(v.type)}
             ${v.isNew?'<span class="pill p-new">Mpya</span>':'<span class="pill p-return">Kawaida</span>'}
@@ -3014,35 +3023,51 @@ async function renderFinance() {
   if(!el) return;
   el.innerHTML = skeletonRows();
   try {
-    const [expenses, visits] = await Promise.all([api('/api/expenses'), api('/api/visits')]);
+    // all=1 → uncapped, so "Yote" is truly all-time. POS sales count as revenue.
+    const [expenses, visits, posSales] = await Promise.all([
+      api('/api/expenses?all=1'), api('/api/visits?all=1'), api('/api/pos/sales?all=1')
+    ]);
     const now = new Date();
-    let filteredExp = expenses, filteredVisits = visits;
+    let filteredExp = expenses, filteredVisits = visits, filteredPos = posSales;
 
+    const dt = e => new Date(e.date||e.createdAt);   // expense date
+    const vt = v => new Date(v.time);                 // visit date
+    const pt = p => new Date(p.createdAt);            // pos sale date
     if(financeFilter === 'today') {
       const ds = now.toDateString();
-      filteredExp = expenses.filter(e => new Date(e.date||e.createdAt).toDateString() === ds);
-      filteredVisits = visits.filter(v => new Date(v.time).toDateString() === ds);
+      filteredExp = expenses.filter(e => dt(e).toDateString() === ds);
+      filteredVisits = visits.filter(v => vt(v).toDateString() === ds);
+      filteredPos = posSales.filter(p => pt(p).toDateString() === ds);
     } else if(financeFilter === 'yesterday') {
       const y = new Date(now); y.setDate(y.getDate()-1); const ds = y.toDateString();
-      filteredExp = expenses.filter(e => new Date(e.date||e.createdAt).toDateString() === ds);
-      filteredVisits = visits.filter(v => new Date(v.time).toDateString() === ds);
+      filteredExp = expenses.filter(e => dt(e).toDateString() === ds);
+      filteredVisits = visits.filter(v => vt(v).toDateString() === ds);
+      filteredPos = posSales.filter(p => pt(p).toDateString() === ds);
     } else if(financeFilter === 'week') {
       const s = new Date(now); s.setDate(now.getDate()-now.getDay()); s.setHours(0,0,0,0);
-      filteredExp = expenses.filter(e => new Date(e.date||e.createdAt) >= s);
-      filteredVisits = visits.filter(v => new Date(v.time) >= s);
+      filteredExp = expenses.filter(e => dt(e) >= s);
+      filteredVisits = visits.filter(v => vt(v) >= s);
+      filteredPos = posSales.filter(p => pt(p) >= s);
     } else if(financeFilter === 'month') {
-      filteredExp = expenses.filter(e => { const d=new Date(e.date||e.createdAt); return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear(); });
-      filteredVisits = visits.filter(v => { const d=new Date(v.time); return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear(); });
+      const sameMonth = d => d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+      filteredExp = expenses.filter(e => sameMonth(dt(e)));
+      filteredVisits = visits.filter(v => sameMonth(vt(v)));
+      filteredPos = posSales.filter(p => sameMonth(pt(p)));
     } else if(financeFilter === 'custom') {
       const from = document.getElementById('finance-date-from')?.value;
       const to = document.getElementById('finance-date-to')?.value;
       if(from && to) {
-        filteredExp = expenses.filter(e => { const d=new Date(e.date||e.createdAt); return d>=new Date(from) && d<=new Date(to+'T23:59:59'); });
-        filteredVisits = visits.filter(v => { const d=new Date(v.time); return d>=new Date(from) && d<=new Date(to+'T23:59:59'); });
+        const lo = new Date(from), hi = new Date(to+'T23:59:59');
+        filteredExp = expenses.filter(e => { const d=dt(e); return d>=lo && d<=hi; });
+        filteredVisits = visits.filter(v => { const d=vt(v); return d>=lo && d<=hi; });
+        filteredPos = posSales.filter(p => { const d=pt(p); return d>=lo && d<=hi; });
       }
     }
-    // Only count approved visits for revenue
-    const revenue = filteredVisits.reduce((s,v) => s+(parseFloat(v.amount)||0), 0);
+    // Revenue = APPROVED car-wash visits + POS accessory sales.
+    // (Unapproved/pending washes are not yet counted as income.)
+    const washRevenue = filteredVisits.filter(v=>v.approved).reduce((s,v) => s+(parseFloat(v.amount)||0), 0);
+    const posRevenue = filteredPos.reduce((s,p) => s+(parseFloat(p.total)||0), 0);
+    const revenue = washRevenue + posRevenue;
     const totalExp = filteredExp.reduce((s,e) => s+(parseFloat(e.amount)||0), 0);
     const profit = revenue - totalExp;
     const profitPct = revenue > 0 ? Math.round((profit/revenue)*100) : 0;
@@ -3053,7 +3078,7 @@ async function renderFinance() {
 
     el.innerHTML = `
       <div class="finance-grid">
-        <div class="finance-card"><div class="fc-label">Mapato</div><div class="fc-value fc-green">TZS ${revenue.toLocaleString()}</div></div>
+        <div class="finance-card"><div class="fc-label">Mapato</div><div class="fc-value fc-green">TZS ${revenue.toLocaleString()}</div><div style="font-size:10px;color:var(--ink-faint);margin-top:3px;">Kuosha ${washRevenue.toLocaleString()} · POS ${posRevenue.toLocaleString()}</div></div>
         <div class="finance-card"><div class="fc-label">Matumizi</div><div class="fc-value fc-red">TZS ${totalExp.toLocaleString()}</div></div>
         <div class="finance-card"><div class="fc-label">Faida Halisi</div><div class="fc-value ${profit>=0?'fc-green':'fc-red'}">TZS ${profit.toLocaleString()}</div></div>
         <div class="finance-card"><div class="fc-label">Margin %</div><div class="fc-value ${profitPct>=0?'fc-blue':'fc-red'}">${profitPct}%</div></div>
@@ -3095,7 +3120,7 @@ async function renderFinance() {
         ${filteredExp.slice(0,15).map(e => {
           const m = CAT_META[e.category]||{icon:'ti-receipt',color:'#888',bg:'#f0f0f0',label:e.category};
           return `<div class="expense-row"><div class="exp-icon" style="background:${m.bg};color:${m.color};"><i class="ti ${m.icon}"></i></div>
-            <div style="flex:1;"><div style="font-size:13px;font-weight:600;">${m.label}</div><div style="font-size:11px;color:var(--ink-faint);">${e.description||'—'} · ${fmtDate(e.date||e.createdAt)}</div></div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:600;">${m.label}</div><div style="font-size:11px;color:var(--ink-faint);">${esc(e.description||'—')} · ${fmtDate(e.date||e.createdAt)}</div></div>
             <div style="font-size:14px;font-weight:800;color:var(--red);">TZS ${parseFloat(e.amount).toLocaleString()}</div>
           </div>`;
         }).join('')}
@@ -3144,7 +3169,7 @@ async function renderPosSalesHistory() {
         <div class="exp-icon" style="background:var(--green-pale);color:var(--green);"><i class="ti ti-shopping-cart"></i></div>
         <div style="flex:1;min-width:0;">
           <div style="font-size:13px;font-weight:600;">${s.items.map(i=>i.name+' x'+i.qty).join(', ')}</div>
-          ${s.note?`<div style="font-size:11px;color:var(--ink-faint);">📝 ${s.note}</div>`:''}
+          ${s.note?`<div style="font-size:11px;color:var(--ink-faint);">📝 ${esc(s.note)}</div>`:''}
           <div style="font-size:11px;color:var(--ink-faint);">${fmtDate(s.createdAt)} ${fmtTime(s.createdAt)} · na ${s.soldBy||'—'}</div>
         </div>
         <div style="font-size:14px;font-weight:800;color:var(--green);">TZS ${parseFloat(s.total).toLocaleString()}</div>
@@ -3288,8 +3313,8 @@ async function renderWorkerDetail() {
       <div style="font-size:11px;color:var(--ink-faint);width:20px;text-align:center;">${i+1}</div>
       <div class="avatar" style="${v.approved?'background:var(--green);color:#fff;':''}">${ini(v.name||'?')}</div>
       <div style="flex:1;min-width:0;">
-        <div class="cust-name">${v.name||'Hakuna jina'}</div>
-        <div class="cust-meta">${v.plate} · ${v.service||'—'}</div>
+        <div class="cust-name">${esc(v.name||'Hakuna jina')}</div>
+        <div class="cust-meta">${esc(v.plate)} · ${esc(v.service||'—')}</div>
         <div style="margin-top:3px;display:flex;gap:4px;flex-wrap:wrap;">
           ${vtypePill(v.type)}
           ${v.isNew?'<span class="pill p-new">Mpya</span>':'<span class="pill p-return">Kawaida</span>'}
