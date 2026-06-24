@@ -20,7 +20,18 @@ if (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === 'admin') {
   console.warn('WARNING: ADMIN_PASSWORD is unset or set to "admin" — change it before production use.');
 }
 
+// Log instead of silently crashing on an unexpected async failure.
+process.on('unhandledRejection', (reason) => console.error('UnhandledRejection:', reason));
+process.on('uncaughtException', (err) => console.error('UncaughtException:', err));
+
 const app = express();
+// Behind Render/Railway's proxy: trust the first hop so express-rate-limit and
+// req.ip see the real client IP (otherwise the login limiter buckets everyone
+// under the proxy IP).
+app.set('trust proxy', 1);
+
+// Lightweight health check for platform probes / uptime monitors (no auth).
+app.get('/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
 // CORS: the frontend is served by this same server, so cross-origin API access
 // is not needed by default. Set CORS_ORIGIN (comma-separated) to allow specific origins.
@@ -44,6 +55,17 @@ const loginLimiter = rateLimit({
   message: { error: 'Umejaribu mara nyingi. Subiri dakika 1.' },
   skipSuccessfulRequests: true  // Usihesabu successful logins
 });
+
+// OCR is a paid Google Cloud Vision call — cap per IP to prevent billing abuse.
+const ocrLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  message: { error: 'Umescan mara nyingi. Subiri dakika moja.' },
+});
+
+// Generous catch-all limiter for the rest of the API (DoS guardrail).
+const apiLimiter = rateLimit({ windowMs: 60 * 1000, max: 600 });
+app.use('/api/', apiLimiter);
 
 // ─── Firebase ────────────────────────────────────────────────────────────────
 admin.initializeApp({
@@ -178,7 +200,7 @@ app.get('/api/workers', authMiddleware, (req, res) => {
 
 
 // ─── Google Cloud Vision — Plate OCR ─────────────────────────────────────────
-app.post('/api/scan/plate', authMiddleware, async (req, res) => {
+app.post('/api/scan/plate', ocrLimiter, authMiddleware, async (req, res) => {
   try {
     const { imageBase64 } = req.body;
     if (!imageBase64) return res.status(400).json({ error: 'Picha inahitajika' });
@@ -326,12 +348,21 @@ app.get('/api/search', authMiddleware, async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
     if (!q) return res.json([]);
-    const snap = await db.collection('customers').get();
-    const lower = q.toLowerCase();
-    const results = snap.docs.map(d => d.data()).filter(c =>
-      (c.phone||'').includes(q) || (c.name||'').toLowerCase().includes(lower) || (c.plate||'').toUpperCase().includes(q.toUpperCase())
-    );
-    res.json(results.slice(0, 5));
+    // Server-side prefix queries (bounded to a few reads each) instead of
+    // scanning the whole customers collection on every keystroke. Each is a
+    // single-field range query, so no composite index is required.
+    // Note: this matches by PREFIX (start of plate/phone/name), not substring.
+    const HI = '\uf8ff';                        // high code point → "starts with q"
+    const col = db.collection('customers');
+    const [byPlate, byPhone, byName] = await Promise.all([
+      col.orderBy('plate').startAt(q.toUpperCase()).endAt(q.toUpperCase() + HI).limit(5).get(),
+      col.orderBy('phone').startAt(q).endAt(q + HI).limit(5).get(),
+      col.orderBy('name').startAt(q).endAt(q + HI).limit(5).get(),
+    ]);
+    const seen = new Map();
+    [byPlate, byPhone, byName].forEach(snap =>
+      snap.docs.forEach(d => { if (!seen.has(d.id)) seen.set(d.id, d.data()); }));
+    res.json([...seen.values()].slice(0, 5));
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -768,4 +799,14 @@ app.get('/api/finance/summary', authMiddleware, adminOnly, async (req, res) => {
       byCategory,
     });
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ─── Fallbacks (must be registered last) ─────────────────────────────────────
+// Unknown API route → clean 404 (instead of serving index.html for /api/*).
+app.use('/api', (req, res) => res.status(404).json({ error: 'Haijapatikana' }));
+// Catch-all error handler so a thrown/rejected route returns JSON, not a crash.
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  if (res.headersSent) return next(err);
+  res.status(500).json({ error: 'Hitilafu ya seva.' });
 });

@@ -203,6 +203,39 @@ select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 .ws-row:last-child{border-bottom:none;}
 .ws-row span:first-child{color:var(--ink-soft);}
 .ws-row span:last-child{font-weight:700;color:var(--ink);}
+/* ── Worker profile cards (performance) ── */
+.wp-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:1rem;box-shadow:var(--shadow-sm);cursor:pointer;display:flex;flex-direction:column;gap:.7rem;outline:none;}
+.wp-card:active{transform:scale(.985);}
+.wp-card:focus-visible{box-shadow:0 0 0 3px rgba(15,110,86,.25);}
+.wp-head{display:flex;align-items:center;gap:10px;}
+.wp-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;}
+.wp-id{flex:1;min-width:0;}
+.wp-name{font-size:14px;font-weight:800;color:var(--ink);line-height:1.2;}
+.wp-role{font-size:11px;color:var(--ink-faint);font-weight:600;}
+.wp-status{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+.wp-status .wp-dot{width:6px;height:6px;border-radius:50%;}
+.wp-status.on{background:var(--green-pale);color:var(--green);}
+.wp-status.on .wp-dot{background:var(--green);box-shadow:0 0 0 3px rgba(15,110,86,.15);}
+.wp-status.off{background:#f1f1f3;color:#8a8a93;}
+.wp-status.off .wp-dot{background:#b6b6be;}
+.wp-metrics{display:flex;gap:6px;}
+.wp-metric{flex:1;text-align:center;background:#f7f9f8;border-radius:var(--r-md);padding:8px 4px;}
+.wp-mv{font-size:18px;font-weight:800;color:var(--ink);line-height:1;}
+.wp-ml{font-size:9.5px;color:var(--ink-faint);font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:.3px;}
+.wp-rev{font-size:12px;color:var(--ink-soft);display:flex;justify-content:space-between;align-items:center;}
+.wp-rev strong{color:var(--green);font-weight:800;font-size:13px;}
+.wp-perf-top{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-faint);margin-bottom:4px;font-weight:600;}
+.wp-cta{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:700;color:var(--green);background:var(--green-pale);border-radius:var(--r-md);padding:8px;}
+/* ── Install (PWA) card ── */
+.install-card{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:1rem;}
+.ic-left{display:flex;align-items:center;gap:14px;flex:1;min-width:220px;}
+.ic-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--green-mid),var(--green-light));display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;flex-shrink:0;box-shadow:0 4px 14px rgba(15,110,86,.3);}
+.ic-title{font-size:15px;font-weight:800;color:var(--ink);}
+.ic-sub{font-size:12px;color:var(--ink-soft);margin:2px 0 6px;}
+.ic-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--ink-faint);}
+.ic-badge{background:var(--green-pale);color:var(--green);font-weight:800;padding:2px 8px;border-radius:999px;}
+.ic-btn{flex-shrink:0;}
+.ic-ios{flex-basis:100%;font-size:11px;color:var(--ink-faint);border-top:1px dashed var(--border);padding-top:8px;margin-top:2px;}
 
 /* METRICS */
 .metric-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:8px;margin-bottom:1.25rem;}
@@ -1457,6 +1490,24 @@ body.dark {
             <div><div class="card-title">Shughuli za Hivi Karibuni</div></div>
           </div>
           <div id="recent-list"></div>
+        </div>
+
+        <!-- INSTALL APP (PWA) -->
+        <div class="card install-card" id="install-card">
+          <div class="ic-left">
+            <div class="ic-icon"><i class="ti ti-device-mobile-down"></i></div>
+            <div>
+              <div class="ic-title">Ngewa Car Wash App</div>
+              <div class="ic-sub">Sakinisha kwenye simu yako — fungua kama app kamili, hata bila internet.</div>
+              <div class="ic-meta">
+                <span class="ic-badge" id="ic-version">v8</span>
+                <span id="ic-updated">Imesasishwa —</span>
+                <span>· Android &amp; iPhone</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-primary ic-btn" onclick="installPWA()"><i class="ti ti-download"></i> Sakinisha App</button>
+          <div class="ic-ios">iPhone (Safari): bonyeza <i class="ti ti-share-2" style="vertical-align:-2px;"></i> Share &rarr; "Add to Home Screen".</div>
         </div>
       </div>
 
@@ -3208,23 +3259,34 @@ async function renderWorkerPerf() {
         }
       }
     });
-    ws.innerHTML=WORKERS.map(name=>{
+    const AV_COLORS=['#0F6E56','#1A6BAB','#7A5200','#5B4CC4'];
+    ws.innerHTML=WORKERS.map((name,idx)=>{
       const s=wstats[name];
       const pct=s.visits>0?Math.round((s.approved/s.visits)*100):0;
-      return `<div class="worker-stat-card">
-        <div class="ws-name"><i class="ti ti-user-cog"></i>${name}
-          <button class="btn btn-primary btn-sm" style="margin-left:auto;padding:3px 9px;font-size:11px;" onclick="openWorkerDetail('${name}')">
-            <i class="ti ti-eye"></i> Angalia
-          </button>
+      const active=s.visits>0;
+      const c=AV_COLORS[idx%AV_COLORS.length];
+      return `<div class="wp-card" role="button" tabindex="0"
+            onclick="openWorkerDetail('${name}')"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openWorkerDetail('${name}');}">
+        <div class="wp-head">
+          <div class="wp-avatar" style="background:${c}1f;color:${c};">${ini(name)}</div>
+          <div class="wp-id">
+            <div class="wp-name">${esc(name)}</div>
+            <div class="wp-role">Mfanyakazi</div>
+          </div>
+          <span class="wp-status ${active?'on':'off'}"><span class="wp-dot"></span>${active?'Active':'Offline'}</span>
         </div>
-        <div class="ws-row"><span>Kazi zilizopewa</span><span>${s.visits}</span></div>
-        <div class="ws-row"><span>Zilizokamilika ✅</span><span style="color:var(--green);">${s.approved}</span></div>
-        <div class="ws-row"><span>Zinasubiria ⏳</span><span style="color:var(--orange);">${s.pending}</span></div>
-        <div class="ws-row"><span>Mapato (zilizokamilika)</span><span style="color:var(--green);font-weight:700;">TZS ${s.approvedRevenue.toLocaleString()}</span></div>
-        <div style="margin-top:8px;">
-          <div style="font-size:10px;color:var(--ink-faint);margin-bottom:3px;">Utendaji ${pct}%</div>
+        <div class="wp-metrics">
+          <div class="wp-metric"><div class="wp-mv">${s.visits}</div><div class="wp-ml">Kazi</div></div>
+          <div class="wp-metric"><div class="wp-mv" style="color:var(--green);">${s.approved}</div><div class="wp-ml">Zimekamilika</div></div>
+          <div class="wp-metric"><div class="wp-mv" style="color:var(--orange);">${s.pending}</div><div class="wp-ml">Zinasubiria</div></div>
+        </div>
+        <div class="wp-rev"><span>Mapato (zilizokamilika)</span><strong>TZS ${s.approvedRevenue.toLocaleString()}</strong></div>
+        <div>
+          <div class="wp-perf-top"><span>Utendaji</span><span>${pct}%</span></div>
           <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
         </div>
+        <div class="wp-cta"><i class="ti ti-eye"></i> Angalia Ripoti Kamili</div>
       </div>`;
     }).join('');
   } catch(err){ws.innerHTML=`<div class="empty"><i class="ti ti-alert-circle"></i>${err.message}</div>`;}
@@ -3556,6 +3618,20 @@ function closeMobileSidebar() {
 function haptic(ms) {
   try { if(navigator.vibrate) navigator.vibrate(ms||8); } catch(e) {}
 }
+
+// Install (PWA) card — version/date + hide when already installed.
+const APP_VERSION = 'v8';
+const APP_UPDATED = '2026-06-20'; // edit when you ship a new build
+function initInstallCard() {
+  const v = document.getElementById('ic-version');
+  if(v) v.textContent = APP_VERSION;
+  const u = document.getElementById('ic-updated');
+  if(u) u.textContent = 'Imesasishwa ' + new Date(APP_UPDATED).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  const card = document.getElementById('install-card');
+  if(card && standalone) card.style.display = 'none'; // already installed → no need to show
+}
+initInstallCard();
 
 function skeletonRows(n) {
   n = n||4;
